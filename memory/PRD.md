@@ -42,6 +42,8 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
 - [x] Merriweather + Figtree typography
 - [x] **NOVO: Mood Kartica za Instagram Stories** - 4 šablona (Danas, Nedelja, Niz, AI Savet) sa PNG download-om i promenljivim bojama
 - [x] **NOVO: Stripe Premium Pretplata** - Freemium model (500 RSD/mesec ili 4200 RSD/god), Stripe Checkout, gating za CSV export i AI savete
+- [x] **NOVO: 7-Dnevni Free Trial** - Automatski se aktivira za nove korisnike, trial banner na Dashboard-u, countdown, upgrade flow
+- [x] **NOVO: README.md** - Kompletna dokumentacija sa svim varijablama, ključevima, API endpoint-ima i uputstvima za deployment
 
 ## Prioritized Backlog
 ### P0 (Next)

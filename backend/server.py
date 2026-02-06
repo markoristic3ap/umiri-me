@@ -62,6 +62,7 @@ class MoodCreate(BaseModel):
     mood_type: str
     note: Optional[str] = None
     triggers: Optional[List[str]] = None
+    gratitude: Optional[str] = None
 
 TRIGGER_TYPES = {
     "posao": {"label": "Posao", "icon": "briefcase"},

@@ -1,34 +1,45 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Umiri.me Custom Styles */
+.mood-emoji {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+.mood-emoji:hover {
+  transform: scale(1.2);
+}
+.mood-emoji.selected {
+  transform: scale(1.15);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.card-soft {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.04);
+  border: 1px solid #EBEBE8;
+  transition: all 0.3s ease;
+}
+.card-soft:hover {
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.App-link {
-    color: #61dafb;
+.btn-primary-soft {
+  background: #4A6C6F;
+  color: white;
+  border-radius: 9999px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  box-shadow: 0 4px 14px rgba(74, 108, 111, 0.2);
 }
-
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.btn-primary-soft:hover {
+  background: #365052;
+  transform: scale(1.05);
+}
+.btn-primary-soft:active {
+  transform: scale(0.95);
 }

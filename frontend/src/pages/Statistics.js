@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
 import AppLayout from "./AppLayout";
-import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
+import { API, fetchWithAuth, MOOD_TYPES, TRIGGER_TYPES } from "@/lib/api";
 
 const PIE_COLORS = ["#769F78", "#E8C170", "#7CA5B8", "#8A9999", "#B8A07C", "#7CA5B8", "#D66A6A", "#D66A6A"];
 

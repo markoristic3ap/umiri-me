@@ -206,7 +206,7 @@ export default function ShareCard({ user }) {
                         </>
                       ) : (
                         <div className="text-center">
-                          <div className="text-6xl mb-4 opacity-30">😊</div>
+                          <div className="flex justify-center mb-4 opacity-30"><MoodIcon mood="miran" size={72} /></div>
                           <p className="text-[#8A9999]">Još nisi zabeležio/la današnje raspoloženje</p>
                         </div>
                       )}

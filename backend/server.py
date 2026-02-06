@@ -330,10 +330,27 @@ async def get_mood_stats(request: Request):
     last_7 = all_moods[:7]
     weekly_avg = [{"date": m["date"], "score": m["score"], "emoji": m["emoji"], "label": m["label"]} for m in reversed(last_7)]
     
+    # Trigger analysis
+    trigger_mood_map = {}
+    for m in all_moods:
+        for t in m.get("triggers", []):
+            if t not in trigger_mood_map:
+                trigger_mood_map[t] = {"scores": [], "count": 0}
+            trigger_mood_map[t]["scores"].append(m["score"])
+            trigger_mood_map[t]["count"] += 1
+    
+    trigger_insights = []
+    for t, data in trigger_mood_map.items():
+        avg = round(sum(data["scores"]) / len(data["scores"]), 1)
+        label = TRIGGER_TYPES.get(t, {}).get("label", t)
+        trigger_insights.append({"trigger": t, "label": label, "avg_score": avg, "count": data["count"]})
+    trigger_insights.sort(key=lambda x: x["avg_score"], reverse=True)
+    
     return {
         "total": total, "streak": streak, "longest_streak": longest,
         "mood_distribution": mood_counts, "avg_score": round(avg_score, 1),
-        "weekly_avg": weekly_avg, "unique_moods": len(set(m["mood_type"] for m in all_moods))
+        "weekly_avg": weekly_avg, "unique_moods": len(set(m["mood_type"] for m in all_moods)),
+        "trigger_insights": trigger_insights
     }
 
 @api_router.get("/moods/export")

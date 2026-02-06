@@ -58,6 +58,9 @@ DB_NAME="umiri_me_production"
 CORS_ORIGINS="http://localhost:3000,https://umiri.me"
 EMERGENT_LLM_KEY=tvoj-emergent-kljuc
 STRIPE_API_KEY=tvoj-stripe-kljuc
+ADMIN_EMAILS=tvoj-email@example.com
+RESEND_API_KEY=tvoj-resend-kljuc
+SENDER_EMAIL=noreply@umiri.me
 EOF
 
 # Instaliraj Python zavisnosti

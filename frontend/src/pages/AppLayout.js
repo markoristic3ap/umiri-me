@@ -12,7 +12,13 @@ const navItems = [
   { to: "/profile", icon: User, label: "Profil" },
 ];
 
-export default function AppLayout({ children, user }) {
+const mobileNavItems = [
+  { to: "/dashboard", icon: LayoutDashboard, label: "Početna" },
+  { to: "/mood", icon: Smile, label: "Novo" },
+  { to: "/calendar", icon: Calendar, label: "Kalendar" },
+  { to: "/share", icon: Image, label: "Podeli" },
+  { to: "/profile", icon: User, label: "Profil" },
+];
   const navigate = useNavigate();
 
   const handleLogout = async () => {

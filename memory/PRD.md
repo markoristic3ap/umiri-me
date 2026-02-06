@@ -40,6 +40,7 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
 - [x] Responsive design with mobile bottom nav
 - [x] Soft Organic theme (Sage green, warm sand, bone white)
 - [x] Merriweather + Figtree typography
+- [x] **NOVO: Mood Kartica za Instagram Stories** - 4 šablona (Danas, Nedelja, Niz, AI Savet) sa PNG download-om i promenljivim bojama
 
 ## Prioritized Backlog
 ### P0 (Next)

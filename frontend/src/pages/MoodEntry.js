@@ -26,7 +26,12 @@ export default function MoodEntry({ user }) {
         body: JSON.stringify({ mood_type: selectedMood, note: note || null }),
       });
       if (res.ok) {
-        toast.success("Raspoloženje zabeleženo!");
+        toast.success("Raspoloženje zabeleženo!", {
+          action: {
+            label: "Podeli",
+            onClick: () => navigate('/share'),
+          },
+        });
         navigate('/dashboard');
       } else {
         toast.error("Greška pri čuvanju");

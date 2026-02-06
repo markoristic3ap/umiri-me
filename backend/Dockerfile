@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir \
     --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/ \
     -r requirements.txt && \
-    pip install --no-cache-dir --upgrade pyopenssl pymongo[srv] certifi
+    pip install --no-cache-dir --upgrade pyopenssl certifi
 
 COPY server.py .
 

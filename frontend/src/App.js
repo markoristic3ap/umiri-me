@@ -75,6 +75,9 @@ function AppRouter() {
       <Route path="/profile" element={
         <ProtectedRoute>{({ user }) => <Profile user={user} />}</ProtectedRoute>
       } />
+      <Route path="/share" element={
+        <ProtectedRoute>{({ user }) => <ShareCard user={user} />}</ProtectedRoute>
+      } />
     </Routes>
   );
 }

@@ -155,7 +155,7 @@ export default function CalendarView({ user }) {
             data-testid="selected-day-detail"
           >
             <div className="flex items-center gap-4">
-              <span className="text-4xl">{selectedMood.emoji}</span>
+              <MoodIcon mood={selectedMood.mood_type} size={48} />
               <div>
                 <h3 className="font-heading text-lg text-[#2D3A3A]">{selectedMood.label}</h3>
                 <p className="text-sm text-[#8A9999]">

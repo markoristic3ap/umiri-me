@@ -521,6 +521,7 @@ class MoodTrackerAPITester:
         print("\n📊 Testing Core Mood Tracking Features...")
         self.test_auth_me()
         self.test_create_mood()
+        self.test_create_mood_with_triggers()
         self.test_get_moods()
         self.test_calendar_data()
         self.test_mood_stats()

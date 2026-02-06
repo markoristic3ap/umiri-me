@@ -2,20 +2,27 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Wind } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import MoodIcon from "@/components/MoodIcon";
 import TriggerSelector from "@/components/TriggerSelector";
+import BreathingExercise from "@/components/BreathingExercise";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 
 const moodOrder = ["srecan", "odusevljen", "miran", "neutralan", "umoran", "tuzan", "anksiozan", "ljut"];
+const NEGATIVE_MOODS = ["tuzan", "anksiozan", "ljut"];
 
 export default function MoodEntry({ user }) {
   const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState(null);
   const [note, setNote] = useState("");
   const [triggers, setTriggers] = useState([]);
+  const [gratitude, setGratitude] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
+
+  const isNegativeMood = selectedMood && NEGATIVE_MOODS.includes(selectedMood);
 
   const handleSave = async () => {
     if (!selectedMood) {
@@ -30,14 +37,12 @@ export default function MoodEntry({ user }) {
           mood_type: selectedMood,
           note: note || null,
           triggers: triggers.length > 0 ? triggers : null,
+          gratitude: gratitude || null,
         }),
       });
       if (res.ok) {
         toast.success("Raspoloženje zabeleženo!", {
-          action: {
-            label: "Podeli",
-            onClick: () => navigate('/share'),
-          },
+          action: { label: "Podeli", onClick: () => navigate('/share') },
         });
         navigate('/dashboard');
       } else {
@@ -60,7 +65,7 @@ export default function MoodEntry({ user }) {
           <p className="text-sm sm:text-base text-[#5C6B6B] mb-6 sm:mb-10">Izaberi raspoloženje koje najbolje opisuje tvoj trenutni osećaj</p>
         </motion.div>
 
-        {/* Emoji Grid */}
+        {/* Mood Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10">
           {moodOrder.map((key, i) => {
             const mood = MOOD_TYPES[key];
@@ -74,13 +79,11 @@ export default function MoodEntry({ user }) {
                 data-testid={`mood-btn-${key}`}
                 onClick={() => setSelectedMood(key)}
                 className={`card-soft p-4 sm:p-6 text-center transition-all duration-300 ${
-                  isSelected
-                    ? "ring-2 ring-[#4A6C6F] shadow-lg scale-[1.03]"
-                    : "hover:scale-[1.03] hover:shadow-md"
+                  isSelected ? "ring-2 ring-[#4A6C6F] shadow-lg scale-[1.03]" : "hover:scale-[1.03] hover:shadow-md"
                 }`}
                 style={isSelected ? { borderColor: mood.color } : {}}
               >
-                <span className={`flex justify-center mb-1.5 sm:mb-2 mood-emoji ${isSelected ? 'selected' : ''}`}>
+                <span className="flex justify-center mb-1.5 sm:mb-2 mood-emoji">
                   <MoodIcon mood={key} size={isSelected ? 52 : 44} animated={isSelected} />
                 </span>
                 <span className={`text-xs sm:text-sm block ${isSelected ? 'text-[#2D3A3A] font-medium' : 'text-[#8A9999]'}`}>
@@ -91,27 +94,65 @@ export default function MoodEntry({ user }) {
           })}
         </div>
 
-        {/* Details section */}
         <AnimatePresence>
           {selectedMood && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="space-y-6 mb-8"
+              className="space-y-4 sm:space-y-6 mb-6 sm:mb-8"
             >
+              {/* Breathing suggestion for negative moods */}
+              {isNegativeMood && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-[#E3F2FD] to-[#F2F4F0] rounded-2xl p-4 flex items-center justify-between border border-[#7CA5B8]/20"
+                  data-testid="breathing-suggestion"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-[#7CA5B8]/20 rounded-full flex items-center justify-center">
+                      <Wind className="w-4 h-4 text-[#7CA5B8]" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[#2D3A3A]">Probaj tehniku disanja</p>
+                      <p className="text-xs text-[#8A9999]">60 sekundi za smirenje</p>
+                    </div>
+                  </div>
+                  <button
+                    data-testid="open-breathing-btn"
+                    onClick={() => setShowBreathing(true)}
+                    className="text-sm font-medium text-[#7CA5B8] hover:text-[#4A6C6F] px-4 py-2 rounded-full bg-white border border-[#7CA5B8]/20"
+                  >
+                    Započni
+                  </button>
+                </motion.div>
+              )}
+
               {/* Triggers */}
               <div className="card-soft p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-3 sm:mb-4">
                   <MoodIcon mood={selectedMood} size={32} animated />
                   <div>
-                    <p className="font-heading text-sm sm:text-base font-medium text-[#2D3A3A]">
-                      Šta utiče na tvoje raspoloženje?
-                    </p>
+                    <p className="font-heading text-sm sm:text-base font-medium text-[#2D3A3A]">Šta utiče na tvoje raspoloženje?</p>
                     <p className="text-xs sm:text-sm text-[#8A9999]">Izaberi faktore (opciono)</p>
                   </div>
                 </div>
                 <TriggerSelector selected={triggers} onChange={setTriggers} />
+              </div>
+
+              {/* Gratitude */}
+              <div className="card-soft p-4 sm:p-6">
+                <p className="text-sm font-medium text-[#2D3A3A] mb-1">Za šta si danas zahvalan/na?</p>
+                <p className="text-xs text-[#8A9999] mb-3">Dnevnik zahvalnosti (opciono)</p>
+                <Textarea
+                  data-testid="gratitude-input"
+                  value={gratitude}
+                  onChange={(e) => setGratitude(e.target.value)}
+                  placeholder="Danas sam zahvalan/na za..."
+                  className="bg-[#F9F9F7] border-[#EBEBE8] rounded-2xl min-h-[70px] text-[#2D3A3A] placeholder:text-[#8A9999] resize-none focus:ring-[#4A6C6F] focus:border-[#4A6C6F]"
+                  maxLength={300}
+                />
               </div>
 
               {/* Note */}
@@ -122,35 +163,30 @@ export default function MoodEntry({ user }) {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Šta ti je na umu danas? Slobodno zapiši..."
-                  className="bg-[#F9F9F7] border-[#EBEBE8] rounded-2xl min-h-[100px] text-[#2D3A3A] placeholder:text-[#8A9999] resize-none focus:ring-[#4A6C6F] focus:border-[#4A6C6F]"
+                  className="bg-[#F9F9F7] border-[#EBEBE8] rounded-2xl min-h-[80px] text-[#2D3A3A] placeholder:text-[#8A9999] resize-none focus:ring-[#4A6C6F] focus:border-[#4A6C6F]"
                   maxLength={500}
                 />
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-[#8A9999]">{note.length}/500</span>
-                </div>
+                <span className="text-xs text-[#8A9999] mt-1 block">{note.length}/500</span>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Save button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+        {/* Save */}
+        <button
+          data-testid="save-mood-btn"
+          onClick={handleSave}
+          disabled={!selectedMood || saving}
+          className={`btn-primary-soft w-full text-base py-4 ${!selectedMood ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          <button
-            data-testid="save-mood-btn"
-            onClick={handleSave}
-            disabled={!selectedMood || saving}
-            className={`btn-primary-soft w-full text-base py-4 ${
-              !selectedMood ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            {saving ? "Čuvam..." : "Sačuvaj Raspoloženje"}
-          </button>
-        </motion.div>
+          {saving ? "Čuvam..." : "Sačuvaj Raspoloženje"}
+        </button>
       </div>
+
+      {/* Breathing Exercise Modal */}
+      <AnimatePresence>
+        {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
+      </AnimatePresence>
     </AppLayout>
   );
 }

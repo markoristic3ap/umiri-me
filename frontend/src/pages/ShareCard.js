@@ -324,7 +324,7 @@ export default function ShareCard({ user }) {
 
                       {todayMood && (
                         <div className="mt-6 flex items-center gap-3">
-                          <span className="text-3xl">{todayMood.emoji}</span>
+                          <MoodIcon mood={todayMood.mood_type} size={36} />
                           <div>
                             <p className="text-sm font-medium text-[#2D3A3A]">Danas: {todayMood.label}</p>
                             <p className="text-xs text-[#8A9999]">{todayFormatted}</p>

@@ -4,6 +4,7 @@ import { toPng } from "html-to-image";
 import { Download, Send, ChevronLeft, ChevronRight, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "./AppLayout";
+import MoodIcon from "@/components/MoodIcon";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 
 const CARD_TEMPLATES = [

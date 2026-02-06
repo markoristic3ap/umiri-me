@@ -718,6 +718,115 @@ async def get_trigger_types():
 async def get_premium_plans():
     return PREMIUM_PLANS
 
+# Admin endpoints
+async def require_admin(request: Request) -> dict:
+    user = await get_current_user(request)
+    if user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Nemate admin pristup")
+    return user
+
+@api_router.get("/admin/users")
+async def admin_list_users(request: Request, limit: int = 50, offset: int = 0, search: str = ""):
+    await require_admin(request)
+    query = {}
+    if search:
+        query = {"$or": [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"email": {"$regex": search, "$options": "i"}}
+        ]}
+    users = await db.users.find(query, {"_id": 0}).skip(offset).limit(limit).to_list(limit)
+    total = await db.users.count_documents(query)
+    
+    enriched = []
+    for u in users:
+        sub_info = await get_subscription_info(u["user_id"])
+        mood_count = await db.moods.count_documents({"user_id": u["user_id"]})
+        last_mood = await db.moods.find_one({"user_id": u["user_id"]}, {"_id": 0}, sort=[("date", -1)])
+        enriched.append({
+            **u,
+            **sub_info,
+            "mood_count": mood_count,
+            "last_active": last_mood["date"] if last_mood else None
+        })
+    
+    return {"users": enriched, "total": total}
+
+@api_router.get("/admin/stats")
+async def admin_dashboard_stats(request: Request):
+    await require_admin(request)
+    total_users = await db.users.count_documents({})
+    total_moods = await db.moods.count_documents({})
+    active_subs = await db.subscriptions.count_documents({"status": "active"})
+    trial_subs = await db.subscriptions.count_documents({"status": "active", "is_trial": True})
+    paid_subs = active_subs - trial_subs
+    total_transactions = await db.payment_transactions.count_documents({"payment_status": "paid"})
+    
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_moods = await db.moods.count_documents({"date": today})
+    
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+    weekly_active = len(await db.moods.distinct("user_id", {"date": {"$gte": week_ago}}))
+    
+    return {
+        "total_users": total_users,
+        "total_moods": total_moods,
+        "active_subscriptions": active_subs,
+        "trial_subscriptions": trial_subs,
+        "paid_subscriptions": paid_subs,
+        "total_transactions": total_transactions,
+        "today_moods": today_moods,
+        "weekly_active_users": weekly_active
+    }
+
+@api_router.post("/admin/grant-premium")
+async def admin_grant_premium(data: AdminGrantPremium, request: Request):
+    await require_admin(request)
+    
+    user = await db.users.find_one({"user_id": data.user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Korisnik nije pronađen")
+    
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(days=data.days)
+    
+    await db.subscriptions.update_one(
+        {"user_id": data.user_id},
+        {"$set": {
+            "user_id": data.user_id,
+            "plan_id": data.plan_id,
+            "is_trial": False,
+            "status": "active",
+            "started_at": now.isoformat(),
+            "expires_at": expires_at.isoformat(),
+            "updated_at": now.isoformat(),
+            "granted_by": "admin"
+        }},
+        upsert=True
+    )
+    
+    return {"message": f"Premium dodeljen korisniku {user['name']} na {data.days} dana", "expires_at": expires_at.isoformat()}
+
+@api_router.post("/admin/revoke-premium")
+async def admin_revoke_premium(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    user_id = body.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id je obavezan")
+    
+    result = await db.subscriptions.update_one(
+        {"user_id": user_id},
+        {"$set": {"status": "revoked", "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": "Premium ukinut" if result.modified_count else "Korisnik nema aktivnu pretplatu"}
+
+@api_router.get("/admin/check")
+async def admin_check(request: Request):
+    user = await get_current_user(request)
+    is_admin = user.get("email") in ADMIN_EMAILS
+    return {"is_admin": is_admin}
+
 @api_router.get("/")
 async def root():
     return {"message": "Umiri.me API"}

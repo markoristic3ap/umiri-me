@@ -377,6 +377,76 @@ async def export_moods(request: Request):
         headers={"Content-Disposition": "attachment; filename=umiri_me_raspolozenja.csv"}
     )
 
+# Weekly AI Report
+@api_router.post("/ai/weekly-report")
+async def get_weekly_report(request: Request):
+    user = await get_current_user(request)
+    premium = await is_premium(user["user_id"])
+    if not premium:
+        raise HTTPException(status_code=403, detail="Nedeljni izveštaj je dostupan samo za Premium korisnike")
+    
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+    moods = await db.moods.find(
+        {"user_id": user["user_id"], "date": {"$gte": week_ago}}, {"_id": 0}
+    ).sort("date", 1).to_list(7)
+    
+    if not moods:
+        return {"report": "Nemaš dovoljno podataka za nedeljni izveštaj. Nastavi da beležiš raspoloženja!", "generated_at": datetime.now(timezone.utc).isoformat()}
+    
+    mood_details = []
+    all_triggers = {}
+    gratitudes = []
+    for m in moods:
+        mood_details.append(f"{m['date']}: {m['emoji']} {m['label']} (ocena {m['score']})")
+        for t in m.get("triggers", []):
+            label = TRIGGER_TYPES.get(t, {}).get("label", t)
+            if label not in all_triggers:
+                all_triggers[label] = {"scores": [], "count": 0}
+            all_triggers[label]["scores"].append(m["score"])
+            all_triggers[label]["count"] += 1
+        if m.get("gratitude"):
+            gratitudes.append(m["gratitude"])
+    
+    avg_score = round(sum(m["score"] for m in moods) / len(moods), 1)
+    trigger_summary = ""
+    for t, data in all_triggers.items():
+        avg = round(sum(data["scores"]) / len(data["scores"]), 1)
+        trigger_summary += f"- {t}: prosek {avg}/5 ({data['count']}x)\n"
+    
+    prompt = f"""Napravi nedeljni izveštaj za korisnika.
+
+Raspoloženja ove nedelje:
+{chr(10).join(mood_details)}
+
+Prosečna ocena: {avg_score}/5
+Broj unosa: {len(moods)}
+
+Faktori koji su uticali:
+{trigger_summary if trigger_summary else "Nema podataka o faktorima."}
+
+{"Zahvalnosti: " + "; ".join(gratitudes) if gratitudes else ""}
+
+Napravi kratak, topao izveštaj sa:
+1. Pregled nedelje (2 rečenice)
+2. Šta pozitivno utiče na raspoloženje (1-2 rečenice)
+3. Preporuka za sledeću nedelju (1-2 rečenice)
+
+Budi konkretan, koristi podatke. Piši na srpskom, latiničnim pismom."""
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"weekly_{user['user_id']}_{datetime.now().strftime('%Y%m%d')}",
+            system_message="Ti si AI wellness coach u aplikaciji Umiri.me. Pišeš na srpskom jeziku, latiničnim pismom. Praviš nedeljne izveštaje o raspoloženju. Tvoj ton je topao, konkretan i motivišući."
+        )
+        chat.with_model("openai", "gpt-5.2")
+        user_msg = UserMessage(text=prompt)
+        report_text = await chat.send_message(user_msg)
+        return {"report": report_text, "avg_score": avg_score, "total_entries": len(moods), "generated_at": datetime.now(timezone.utc).isoformat()}
+    except Exception as e:
+        logger.error(f"Weekly report error: {e}")
+        return {"report": f"Ove nedelje si zabeležio/la {len(moods)} raspoloženja sa prosečnom ocenom {avg_score}/5. Nastavi tako!", "avg_score": avg_score, "total_entries": len(moods), "generated_at": datetime.now(timezone.utc).isoformat()}
+
 # Gamification
 @api_router.get("/gamification/stats")
 async def get_gamification(request: Request):

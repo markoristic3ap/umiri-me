@@ -92,6 +92,11 @@ class CheckoutRequest(BaseModel):
     plan_id: str
     origin_url: str
 
+class NotificationSettings(BaseModel):
+    email_reminders: bool = True
+    reminder_time: str = "20:00"  # HH:MM format
+    trial_warnings: bool = True
+
 class AdminGrantPremium(BaseModel):
     user_id: str
     plan_id: str = "admin_grant"

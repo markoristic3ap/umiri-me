@@ -330,22 +330,22 @@ class MoodTrackerAPITester:
         return False
 
     def test_ai_tips_limit(self):
-        """Test POST /api/ai/tips returns 403 after free tier limit exceeded"""
+        """Test POST /api/ai/tips - should allow unlimited for trial users"""
         if not self.session_token:
-            self.log_test("AI Tips Limit", False, "No session token available")
+            self.log_test("AI Tips Unlimited Trial", False, "No session token available")
             return False
         
-        # First AI tip should work
-        success1, response1 = self.run_test("AI Tips First", "POST", "ai/tips", 200)
+        # For trial users (is_premium=true), AI tips should be unlimited
+        success1, response1 = self.run_test("AI Tips First (Trial User)", "POST", "ai/tips", 200)
         
-        # Second AI tip should return 403 (limit exceeded)
-        success2, response2 = self.run_test("AI Tips Limit Exceeded", "POST", "ai/tips", 403)
+        # Second AI tip should also work for trial users
+        success2, response2 = self.run_test("AI Tips Second (Trial User)", "POST", "ai/tips", 200)
         
         if success1 and success2:
-            print("   AI tips free tier limit working correctly")
+            print("   AI tips unlimited working for trial user")
             return True
         elif success1:
-            print("   First AI tip worked, but limit not enforced on second request")
+            print("   First AI tip worked, but second failed unexpectedly")
             return False
         return False
 

@@ -189,7 +189,7 @@ export default function ShareCard({ user }) {
                       <p className="text-xs uppercase tracking-widest text-[#8A9999] mb-4">{todayFormatted}</p>
                       {todayMood ? (
                         <>
-                          <div className="text-8xl mb-6">{todayMood.emoji}</div>
+                          <div className="mb-6"><MoodIcon mood={todayMood.mood_type} size={96} /></div>
                           <h2 className="font-heading text-3xl font-bold text-[#2D3A3A] mb-3">
                             Danas se osećam
                           </h2>

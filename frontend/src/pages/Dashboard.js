@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Smile, Flame, TrendingUp, Sparkles, ChevronRight, Loader2, Image, Crown, Clock } from "lucide-react";
 import AppLayout from "./AppLayout";
+import MoodIcon from "@/components/MoodIcon";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 
 export default function Dashboard({ user }) {

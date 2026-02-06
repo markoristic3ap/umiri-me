@@ -200,7 +200,17 @@ export default function Dashboard({ user }) {
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
           >
-            <h2 className="font-heading text-xl font-medium text-[#2D3A3A] mb-4">Poslednja Raspoloženja</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-xl font-medium text-[#2D3A3A]">Poslednja Raspoloženja</h2>
+              <button
+                data-testid="share-from-dashboard"
+                onClick={() => navigate('/share')}
+                className="flex items-center gap-2 text-sm text-[#4A6C6F] hover:text-[#365052] transition-colors font-medium"
+              >
+                <Share2 className="w-4 h-4" strokeWidth={1.5} />
+                Podeli Karticu
+              </button>
+            </div>
             <div className="flex gap-3 overflow-x-auto pb-2">
               {recentMoods.map((mood) => (
                 <div

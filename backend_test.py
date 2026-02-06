@@ -585,10 +585,16 @@ class MoodTrackerAPITester:
         self.test_auth_me()
         self.test_create_mood()
         self.test_create_mood_with_triggers()
+        self.test_create_mood_with_gratitude()  # NEW: Test gratitude field
         self.test_get_moods()
+        self.test_get_moods_with_gratitude()  # NEW: Test gratitude retrieval
         self.test_calendar_data()
         self.test_mood_stats()
         self.test_gamification_stats()
+        
+        # NEW: Test AI Weekly Report
+        print("\n🤖 Testing AI Weekly Report...")
+        self.test_weekly_ai_report()
         
         self.print_summary()
         return 0 if self.tests_passed == self.tests_run else 1

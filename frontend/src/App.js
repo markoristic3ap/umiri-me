@@ -10,6 +10,8 @@ import CalendarView from "@/pages/CalendarView";
 import Statistics from "@/pages/Statistics";
 import Profile from "@/pages/Profile";
 import ShareCard from "@/pages/ShareCard";
+import PremiumPage from "@/pages/PremiumPage";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;

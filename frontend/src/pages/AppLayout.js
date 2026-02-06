@@ -106,7 +106,7 @@ export default function AppLayout({ children, user }) {
 
       {/* Main content */}
       <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-6 md:p-12">
+        <div className="max-w-5xl mx-auto p-4 sm:p-6 md:p-12">
           {children}
         </div>
       </main>

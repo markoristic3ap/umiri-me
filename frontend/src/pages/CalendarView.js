@@ -134,7 +134,7 @@ export default function CalendarView({ user }) {
                     <>
                       <span className="text-xs text-[#8A9999] mb-0.5">{day}</span>
                       {mood ? (
-                        <span className="text-xl md:text-2xl">{mood.emoji}</span>
+                        <MoodIcon mood={mood.mood_type} size={28} />
                       ) : (
                         <span className="w-2 h-2 rounded-full bg-[#EBEBE8]" />
                       )}

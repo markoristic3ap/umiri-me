@@ -500,6 +500,7 @@ class MoodTrackerAPITester:
         print("\n📡 Testing Public Endpoints...")
         self.test_root_endpoint()
         self.test_mood_types()
+        self.test_trigger_types()
         self.test_premium_plans()
         
         # Test auth-protected endpoints using existing session

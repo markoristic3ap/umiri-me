@@ -32,9 +32,9 @@ export default function AppLayout({ children, user }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9F7] flex">
+    <div className="min-h-screen bg-[#F9F9F7] dark:bg-[#1a2023] flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#EBEBE8] p-6">
+      <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-[#1e2729] border-r border-[#EBEBE8] dark:border-[#2a3538] p-6 transition-colors duration-300">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-9 h-9 bg-[#4A6C6F] rounded-full flex items-center justify-center">
             <Leaf className="w-4 h-4 text-white" strokeWidth={1.5} />

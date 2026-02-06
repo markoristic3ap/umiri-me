@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Image, Crown, FileText } from "lucide-react";
+import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Image, Crown, FileText, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { API } from "@/lib/api";
 
 const navItems = [

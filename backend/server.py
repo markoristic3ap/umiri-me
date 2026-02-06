@@ -436,6 +436,9 @@ async def get_ai_tip(request: Request):
         mood_summary = f"Poslednja raspoloženja korisnika: {', '.join(mood_labels)}"
         if recent_moods[0].get("note"):
             mood_summary += f"\nPoslednja beleška: {recent_moods[0]['note']}"
+        if recent_moods[0].get("triggers"):
+            trigger_labels = [TRIGGER_TYPES.get(t, {}).get("label", t) for t in recent_moods[0]["triggers"]]
+            mood_summary += f"\nFaktori koji utiču: {', '.join(trigger_labels)}"
     else:
         mood_summary = "Korisnik tek počinje da koristi aplikaciju."
     

@@ -165,6 +165,44 @@ export default function Statistics({ user }) {
           )}
         </div>
 
+        {/* Trigger Insights */}
+        {stats?.trigger_insights?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="card-soft p-6 md:p-8"
+            data-testid="trigger-insights"
+          >
+            <h2 className="font-heading text-xl font-medium text-[#2D3A3A] mb-2">Šta Utiče na Tvoje Raspoloženje</h2>
+            <p className="text-sm text-[#8A9999] mb-6">Prosečna ocena raspoloženja po faktoru</p>
+            <div className="space-y-3">
+              {stats.trigger_insights.map((insight, i) => {
+                const pct = (insight.avg_score / 5) * 100;
+                const barColor = insight.avg_score >= 4 ? "#769F78" : insight.avg_score >= 3 ? "#E8C170" : insight.avg_score >= 2 ? "#B8A07C" : "#D66A6A";
+                return (
+                  <div key={insight.trigger} data-testid={`trigger-insight-${insight.trigger}`} className="flex items-center gap-4">
+                    <span className="text-sm text-[#2D3A3A] font-medium w-28 shrink-0">{insight.label}</span>
+                    <div className="flex-1 h-8 bg-[#F2F4F0] rounded-full overflow-hidden relative">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ delay: 0.8 + i * 0.1, duration: 0.6 }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: barColor }}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#2D3A3A]">
+                        {insight.avg_score}/5
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#8A9999] w-12 text-right">{insight.count}x</span>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
         {!stats || stats.total === 0 ? (
           <div className="card-soft p-12 text-center">
             <div className="text-5xl mb-4">📊</div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toPng } from "html-to-image";
-import { Download, Share2, ChevronLeft, ChevronRight, Sparkles, Loader2 } from "lucide-react";
+import { Download, Send, ChevronLeft, ChevronRight, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";

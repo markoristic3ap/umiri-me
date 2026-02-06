@@ -64,6 +64,35 @@ export default function Dashboard({ user }) {
   return (
     <AppLayout user={user}>
       <div data-testid="dashboard-page" className="space-y-8">
+        {/* Trial banner */}
+        {user?.is_trial && user?.days_left > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-[#FDF8F4] to-[#F2F4F0] rounded-2xl p-4 flex items-center justify-between border border-[#E09F7D]/20"
+            data-testid="trial-banner"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-[#E09F7D]/20 rounded-full flex items-center justify-center">
+                <Clock className="w-4 h-4 text-[#E09F7D]" strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#2D3A3A]">
+                  Premium Trial - još <span className="text-[#E09F7D] font-bold">{user.days_left}</span> {user.days_left === 1 ? 'dan' : 'dana'}
+                </p>
+                <p className="text-xs text-[#8A9999]">Uživaj u svim Premium funkcijama besplatno</p>
+              </div>
+            </div>
+            <button
+              data-testid="upgrade-from-trial-banner"
+              onClick={() => navigate('/premium')}
+              className="text-sm font-medium text-[#4A6C6F] hover:text-[#365052] transition-colors px-4 py-2 rounded-full bg-white border border-[#EBEBE8]"
+            >
+              Nadogradi
+            </button>
+          </motion.div>
+        )}
+
         {/* Greeting */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="font-heading text-3xl md:text-4xl font-light text-[#2D3A3A]">

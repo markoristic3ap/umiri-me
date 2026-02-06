@@ -259,6 +259,7 @@ async def create_mood(mood_data: MoodCreate, request: Request):
         "color": mood_info["color"],
         "note": mood_data.note,
         "triggers": mood_data.triggers or [],
+        "gratitude": mood_data.gratitude,
         "created_at": now.isoformat(),
         "date": today
     }

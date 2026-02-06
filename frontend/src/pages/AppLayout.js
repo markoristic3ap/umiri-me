@@ -51,8 +51,8 @@ export default function AppLayout({ children, user }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all duration-200 ${
                   isActive
-                    ? "bg-[#D6E0D6] text-[#2D3A3A] font-medium"
-                    : "text-[#5C6B6B] hover:bg-[#F2F4F0]"
+                    ? "bg-[#D6E0D6] dark:bg-[#2a3a3a] text-[#2D3A3A] dark:text-[#E8EAE8] font-medium"
+                    : "text-[#5C6B6B] dark:text-[#8A9999] hover:bg-[#F2F4F0] dark:hover:bg-[#243030]"
                 }`
               }
             >

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut } from "lucide-react";
+import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Share2 } from "lucide-react";
 import { API } from "@/lib/api";
 
 const navItems = [

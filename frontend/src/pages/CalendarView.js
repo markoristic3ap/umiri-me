@@ -120,7 +120,7 @@ export default function CalendarView({ user }) {
             {getDaysInMonth().map((day, i) => {
               const mood = getMoodForDay(day);
               const todayClass = isToday(day) ? "ring-2 ring-[#4A6C6F]" : "";
-              const selectedClass = selectedDay === day ? "bg-[#D6E0D6]" : "";
+              const selectedClass = selectedDay && selectedDay === day ? "bg-[#D6E0D6]" : "";
               return (
                 <div
                   key={i}

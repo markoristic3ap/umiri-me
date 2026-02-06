@@ -271,8 +271,10 @@ class MoodTrackerAPITester:
         success, response = self.run_test("Subscription Status", "GET", "subscription/status", 200)
         if success and "is_premium" in response:
             is_premium = response.get("is_premium")
+            is_trial = response.get("is_trial")
+            days_left = response.get("days_left")
             plans = response.get("plans", {})
-            print(f"   User is_premium: {is_premium}")
+            print(f"   User is_premium: {is_premium}, is_trial: {is_trial}, days_left: {days_left}")
             print(f"   Available plans: {list(plans.keys()) if plans else 'None'}")
             return True
         return False

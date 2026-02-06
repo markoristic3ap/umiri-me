@@ -349,7 +349,50 @@ class MoodTrackerAPITester:
             return False
         return False
 
-    def test_auth_me_premium_field(self):
+    def test_trial_user_verification(self):
+        """Test that trial user has both is_premium=true and is_trial=true"""
+        if not self.session_token:
+            self.log_test("Trial User Verification", False, "No session token available")
+            return False
+        
+        success, response = self.run_test("Trial User Verification", "GET", "auth/me", 200)
+        if success:
+            is_premium = response.get("is_premium")
+            is_trial = response.get("is_trial")
+            days_left = response.get("days_left")
+            
+            if is_premium is True and is_trial is True and days_left > 0:
+                print(f"   Trial user verified: is_premium={is_premium}, is_trial={is_trial}, days_left={days_left}")
+                return True
+            else:
+                self.log_test("Trial User Verification", False, f"Expected is_premium=true & is_trial=true, got is_premium={is_premium}, is_trial={is_trial}, days_left={days_left}")
+        return False
+
+    def test_trial_status_consistency(self):
+        """Test that trial status is consistent across /auth/me and /subscription/status"""
+        if not self.session_token:
+            self.log_test("Trial Status Consistency", False, "No session token available")
+            return False
+        
+        # Get data from both endpoints
+        auth_success, auth_response = self.run_test("Trial Status (auth/me)", "GET", "auth/me", 200)
+        sub_success, sub_response = self.run_test("Trial Status (subscription/status)", "GET", "subscription/status", 200)
+        
+        if auth_success and sub_success:
+            auth_premium = auth_response.get("is_premium")
+            auth_trial = auth_response.get("is_trial")
+            auth_days = auth_response.get("days_left")
+            
+            sub_premium = sub_response.get("is_premium")
+            sub_trial = sub_response.get("is_trial")
+            sub_days = sub_response.get("days_left")
+            
+            if (auth_premium == sub_premium and auth_trial == sub_trial and auth_days == sub_days):
+                print(f"   Trial status consistent: premium={auth_premium}, trial={auth_trial}, days={auth_days}")
+                return True
+            else:
+                self.log_test("Trial Status Consistency", False, f"Inconsistent: auth({auth_premium},{auth_trial},{auth_days}) vs sub({sub_premium},{sub_trial},{sub_days})")
+        return False
         """Test GET /api/auth/me now includes is_premium field"""
         if not self.session_token:
             self.log_test("Auth Me Premium Field", False, "No session token available")

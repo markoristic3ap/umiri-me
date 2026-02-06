@@ -182,7 +182,20 @@ export default function Dashboard({ user }) {
             <div className="flex-1">
               <h3 className="font-heading text-lg font-medium text-[#2D3A3A] mb-2">AI Savet za Danas</h3>
               {aiTip ? (
-                <p className="text-[#5C6B6B] leading-relaxed">{aiTip.tip}</p>
+                aiTip.limit_reached ? (
+                  <div>
+                    <p className="text-sm text-[#8A9999] mb-3">{aiTip.message}</p>
+                    <button
+                      data-testid="upgrade-from-ai-tip"
+                      onClick={() => navigate('/premium')}
+                      className="btn-primary-soft text-sm px-6 py-2 flex items-center gap-2"
+                    >
+                      <Crown className="w-4 h-4" /> Nadogradi na Premium
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-[#5C6B6B] leading-relaxed">{aiTip.tip}</p>
+                )
               ) : (
                 <div>
                   <p className="text-sm text-[#8A9999] mb-3">Dobij personalizovani savet baziran na tvojim raspoloženjima</p>

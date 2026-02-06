@@ -60,14 +60,22 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
   - "Ukini Premium" dugme za revokaciju
   - Admin link u sidebar-u vidljiv samo za admine
 
+- [x] **Email Notifikacije** - Resend email servis za transakcione emailove
+  - 3 tipa emailova: dnevni podsetnik, trial upozorenje (2 i 1 dan pre), trial istekao
+  - Korisnik može podesiti: email_reminders on/off, reminder_time (default 20:00), trial_warnings on/off
+  - Podešavanja dostupna u Profile stranici
+  - Admin endpoint za pokretanje slanja (/api/admin/send-reminders, /api/admin/send-trial-warnings)
+  - **NAPOMENA**: Potreban pravi Resend API ključ za slanje (RESEND_API_KEY u backend/.env)
+
 ## Prioritized Backlog
 ### P0 (Completed)
 - ~~Admin Panel za upravljanje premium pristupom~~ ✓
+- ~~Email notifikacije~~ ✓
 
 ### P1 (Next)
 - Mood Challenge / Gamification Expansion - izazov prijateljima, leaderboard
-- Email notifikacije - podsetnik za mood unos, upozorenje pre isteka trial-a
-- Push notifications / reminders for daily mood entry
+- Push notifications / reminders for daily mood entry (PWA)
+- Cron job za automatsko slanje emailova (trenutno se mora ručno pokrenuti)
 
 ### P2
 - PWA konverzija - instalacija na home screen, offline pristup

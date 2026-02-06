@@ -164,6 +164,13 @@ export default function CalendarView({ user }) {
                 {selectedMood.note && (
                   <p className="text-sm text-[#5C6B6B] mt-2 italic">"{selectedMood.note}"</p>
                 )}
+                {selectedMood.triggers?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedMood.triggers.map(t => (
+                      <span key={t} className="text-xs bg-[#D6E0D6] text-[#4A6C6F] px-2 py-0.5 rounded-full">{t}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

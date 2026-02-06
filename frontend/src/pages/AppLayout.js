@@ -63,17 +63,17 @@ export default function AppLayout({ children, user }) {
         </nav>
 
         {/* User info */}
-        <div className="mt-auto pt-6 border-t border-[#EBEBE8]">
+        <div className="mt-auto pt-6 border-t border-[#EBEBE8] dark:border-[#2a3538]">
           <div className="flex items-center gap-3 mb-4">
             {user?.picture ? (
               <img src={user.picture} alt="" className="w-9 h-9 rounded-full" />
             ) : (
-              <div className="w-9 h-9 bg-[#D6E0D6] rounded-full flex items-center justify-center">
+              <div className="w-9 h-9 bg-[#D6E0D6] dark:bg-[#2a3a3a] rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-[#4A6C6F]" />
               </div>
             )}
             <div className="overflow-hidden">
-              <p className="text-sm font-medium text-[#2D3A3A] truncate">{user?.name}</p>
+              <p className="text-sm font-medium text-[#2D3A3A] dark:text-[#E8EAE8] truncate">{user?.name}</p>
               <p className="text-xs text-[#8A9999] truncate">{user?.email}</p>
             </div>
           </div>

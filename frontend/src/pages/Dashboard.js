@@ -121,6 +121,13 @@ export default function Dashboard({ user }) {
                 {todayMood.note && (
                   <p className="text-sm text-[#5C6B6B] mt-3 italic">"{todayMood.note}"</p>
                 )}
+                {todayMood.triggers?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 justify-center">
+                    {todayMood.triggers.map(t => (
+                      <span key={t} className="text-[10px] bg-[#D6E0D6] text-[#4A6C6F] px-2 py-0.5 rounded-full">{t}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center">

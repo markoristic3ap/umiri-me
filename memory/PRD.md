@@ -44,6 +44,8 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
 - [x] **NOVO: Stripe Premium Pretplata** - Freemium model (500 RSD/mesec ili 4200 RSD/god), Stripe Checkout, gating za CSV export i AI savete
 - [x] **NOVO: 7-Dnevni Free Trial** - Automatski se aktivira za nove korisnike, trial banner na Dashboard-u, countdown, upgrade flow
 - [x] **NOVO: README.md** - Kompletna dokumentacija sa svim varijablama, ključevima, API endpoint-ima i uputstvima za deployment
+- [x] **NOVO: Mood Triggers** - 12 faktora (Posao, San, Vežbanje, Društvo, Ishrana, Porodica, Zdravlje, Vreme, Novac, Učenje, Odmor, Kreativnost), analiza u statistici, AI saveti sa kontekstom
+- [x] **NOVO: Animirane SVG Ikonice** - Svako raspoloženje ima jedinstvenu animaciju (bounce, breathe, shake) kroz framer-motion
 
 ## Prioritized Backlog
 ### P0 (Next)

@@ -1,0 +1,181 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Umiri.me",
+      "meaning": "Calm me (Serbian)",
+      "core_values": [
+        "Serenity",
+        "Intimacy",
+        "Gentle Progress",
+        "Human Connection"
+      ],
+      "personality": "A wise, gentle friend who listens without judgment."
+    },
+    "typography": {
+      "headings": {
+        "family": "Merriweather, serif",
+        "usage": "Headings (H1-H3), Hero statements",
+        "weights": [
+          "300",
+          "700"
+        ],
+        "letter_spacing": "-0.02em"
+      },
+      "body": {
+        "family": "Figtree, sans-serif",
+        "usage": "UI text, paragraphs, buttons, data",
+        "weights": [
+          "400",
+          "500",
+          "600"
+        ]
+      },
+      "scale": {
+        "h1": "text-4xl md:text-5xl lg:text-6xl font-light",
+        "h2": "text-3xl md:text-4xl font-normal",
+        "h3": "text-2xl font-medium",
+        "body": "text-base leading-relaxed",
+        "small": "text-sm text-muted-foreground",
+        "label": "text-xs font-bold tracking-widest uppercase text-muted-foreground/80"
+      }
+    },
+    "colors": {
+      "palette": {
+        "background": {
+          "default": "#F9F9F7",
+          "paper": "#FFFFFF",
+          "subtle": "#F2F4F0"
+        },
+        "primary": {
+          "main": "#4A6C6F",
+          "light": "#6B8E91",
+          "dark": "#365052",
+          "foreground": "#FFFFFF"
+        },
+        "secondary": {
+          "main": "#D6E0D6",
+          "foreground": "#2D3A3A"
+        },
+        "accent": {
+          "main": "#E09F7D",
+          "hover": "#D68C6A",
+          "foreground": "#FFFFFF"
+        },
+        "text": {
+          "primary": "#2D3A3A",
+          "secondary": "#5C6B6B",
+          "muted": "#8A9999"
+        },
+        "status": {
+          "success": "#769F78",
+          "warning": "#E8C170",
+          "error": "#D66A6A",
+          "info": "#7CA5B8"
+        }
+      },
+      "rules": [
+        "Never use pure black (#000000). Use #2D3A3A.",
+        "Avoid high-saturation gradients. Use solid earth tones or extremely subtle noise textures.",
+        "Primary color (#4A6C6F) is for primary actions only.",
+        "Backgrounds should be #F9F9F7 (Bone White) to reduce eye strain, not #FFFFFF."
+      ]
+    },
+    "layout": {
+      "spacing": {
+        "base": "1rem",
+        "container_padding": "p-6 md:p-12",
+        "section_gap": "gap-8 md:gap-16"
+      },
+      "grid_system": {
+        "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+        "card_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      },
+      "radius": {
+        "default": "rounded-2xl",
+        "large": "rounded-3xl",
+        "button": "rounded-full"
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-primary text-white rounded-full px-8 py-3 hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20",
+        "secondary": "bg-white border-2 border-secondary text-primary rounded-full px-8 py-3 hover:bg-secondary/20 transition-colors",
+        "ghost": "text-primary hover:bg-primary/10 rounded-full px-4 py-2"
+      },
+      "cards": {
+        "style": "bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#EBEBE8] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300",
+        "glass": "bg-white/80 backdrop-blur-xl border border-white/50 shadow-sm"
+      },
+      "inputs": {
+        "style": "bg-transparent border-b-2 border-muted-foreground/20 focus:border-primary px-0 rounded-none transition-colors placeholder:text-muted-foreground/50 h-12 text-lg"
+      }
+    },
+    "motion": {
+      "duration": {
+        "fast": "200ms",
+        "normal": "400ms",
+        "slow": "700ms"
+      },
+      "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      "animations": {
+        "fade_in": "animate-in fade-in duration-700",
+        "slide_up": "animate-in slide-in-from-bottom-8 fade-in duration-700",
+        "hover_lift": "hover:-translate-y-1 transition-transform duration-300"
+      }
+    },
+    "assets": {
+      "image_urls": {
+        "landing_hero": {
+          "url": "https://images.unsplash.com/photo-1766201392384-49c27dbece0c?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "description": "Golden sunset over calm ocean - Use for Landing Page Hero background with overlay",
+          "category": "hero"
+        },
+        "auth_background": {
+          "url": "https://images.unsplash.com/photo-1758216434916-0819f9cd3a4d?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "description": "Soft flowing fabric abstract - Use for Login/Signup page side panel",
+          "category": "auth"
+        },
+        "meditation_zen": {
+          "url": "https://images.unsplash.com/photo-1678031071130-b40796c8bd11?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "description": "Stacked stones on beach - Use for 'AI Tips' or 'Mindfulness' section",
+          "category": "content"
+        },
+        "community_happy": {
+          "url": "https://images.unsplash.com/photo-1607774731469-0a4216e6a40e?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "description": "Woman relaxing on grass - Use for 'Social Sharing' or 'Community' features",
+          "category": "social"
+        }
+      },
+      "icons": {
+        "library": "lucide-react",
+        "style": "stroke-width={1.5} className='text-primary'"
+      }
+    },
+    "instructions_to_main_agent": {
+      "general": [
+        "Implement the 'Soft Organic' theme. This means NO sharp corners (radius-none) and NO pure black.",
+        "Use 'Merriweather' for all Headings. Import it from Google Fonts.",
+        "Use 'Figtree' for Body text. Import it from Google Fonts.",
+        "For Shadcn components, override the default 'radius' variable to '1rem' or manually apply 'rounded-2xl'.",
+        "Install 'framer-motion' for page transitions.",
+        "Use 'sonner' for all toast notifications - style them to match the soft theme (white bg, green border).",
+        "Ensure all text has sufficient contrast (APCA compliant) against the #F9F9F7 background."
+      ],
+      "pages": {
+        "landing": "Must use the 'landing_hero' image with a soft gradient overlay (white-to-transparent) so text is readable.",
+        "dashboard": "Use a Bento Grid layout. Cards should have soft shadows and plenty of internal padding (p-6 or p-8).",
+        "mood_entry": "Make the emoji selection the HERO element. Large emojis (text-6xl), animated on hover.",
+        "calendar": "Custom style the calendar. Do not use the default shadcn calendar look. Make it look like a paper journal.",
+        "ai_tips": "Present tips in a 'Message Card' format, like a letter from a friend."
+      },
+      "accessibility": "Ensure all mood colors (if using color for mood) are distinguishable by shape or icon, not just color.",
+      "serbian_language": "Ensure all static text is in Serbian. Use 'Latin' script for wider compatibility unless Cyrillic is strictly requested (problem said 'Serbian language', usually implies Latin for apps, but handle strings easily translatable)."
+    },
+    "universal_guidelines": [
+      "Do not use gradients for dark colors.",
+      "Do not center align app container.",
+      "Use sonner for toasts.",
+      "Add data-testid to all interactive elements."
+    ]
+  }
+}

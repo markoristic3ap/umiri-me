@@ -39,7 +39,7 @@ export default function AppLayout({ children, user }) {
           <div className="w-9 h-9 bg-[#4A6C6F] rounded-full flex items-center justify-center">
             <Leaf className="w-4 h-4 text-white" strokeWidth={1.5} />
           </div>
-          <span className="font-heading text-lg text-[#2D3A3A] font-light">umiri.me</span>
+          <span className="font-heading text-lg text-[#2D3A3A] dark:text-[#E8EAE8] font-light">umiri.me</span>
         </div>
 
         <nav className="flex-1 space-y-1">

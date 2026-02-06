@@ -8,6 +8,7 @@ const navItems = [
   { to: "/calendar", icon: Calendar, label: "Kalendar" },
   { to: "/statistics", icon: BarChart3, label: "Statistika" },
   { to: "/share", icon: Image, label: "Podeli" },
+  { to: "/premium", icon: Crown, label: "Premium" },
   { to: "/profile", icon: User, label: "Profil" },
 ];
 

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import MoodIcon from "@/components/MoodIcon";
+import TriggerSelector from "@/components/TriggerSelector";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 
@@ -13,6 +14,7 @@ export default function MoodEntry({ user }) {
   const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState(null);
   const [note, setNote] = useState("");
+  const [triggers, setTriggers] = useState([]);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -24,7 +26,11 @@ export default function MoodEntry({ user }) {
     try {
       const res = await fetchWithAuth(`${API}/moods`, {
         method: 'POST',
-        body: JSON.stringify({ mood_type: selectedMood, note: note || null }),
+        body: JSON.stringify({
+          mood_type: selectedMood,
+          note: note || null,
+          triggers: triggers.length > 0 ? triggers : null,
+        }),
       });
       if (res.ok) {
         toast.success("Raspoloženje zabeleženo!", {
@@ -75,7 +81,7 @@ export default function MoodEntry({ user }) {
                 style={isSelected ? { borderColor: mood.color } : {}}
               >
                 <span className={`block mb-2 mood-emoji ${isSelected ? 'selected' : ''}`}>
-                  <MoodIcon mood={key} size={isSelected ? 64 : 56} />
+                  <MoodIcon mood={key} size={isSelected ? 64 : 56} animated={isSelected} />
                 </span>
                 <span className={`text-xs md:text-sm ${isSelected ? 'text-[#2D3A3A] font-medium' : 'text-[#8A9999]'}`}>
                   {mood.label}
@@ -85,25 +91,32 @@ export default function MoodEntry({ user }) {
           })}
         </div>
 
-        {/* Selected mood indicator */}
+        {/* Details section */}
         <AnimatePresence>
           {selectedMood && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8"
+              className="space-y-6 mb-8"
             >
+              {/* Triggers */}
               <div className="card-soft p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <MoodIcon mood={selectedMood} size={40} />
+                  <MoodIcon mood={selectedMood} size={36} animated />
                   <div>
                     <p className="font-heading font-medium text-[#2D3A3A]">
-                      Osećaš se: {MOOD_TYPES[selectedMood].label}
+                      Šta utiče na tvoje raspoloženje?
                     </p>
-                    <p className="text-sm text-[#8A9999]">Dodaj belešku (opciono)</p>
+                    <p className="text-sm text-[#8A9999]">Izaberi faktore (opciono)</p>
                   </div>
                 </div>
+                <TriggerSelector selected={triggers} onChange={setTriggers} />
+              </div>
+
+              {/* Note */}
+              <div className="card-soft p-6">
+                <p className="text-sm font-medium text-[#2D3A3A] mb-3">Beleška (opciono)</p>
                 <Textarea
                   data-testid="mood-note-input"
                   value={note}
@@ -125,13 +138,12 @@ export default function MoodEntry({ user }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="flex gap-4"
         >
           <button
             data-testid="save-mood-btn"
             onClick={handleSave}
             disabled={!selectedMood || saving}
-            className={`btn-primary-soft flex-1 text-base py-4 ${
+            className={`btn-primary-soft w-full text-base py-4 ${
               !selectedMood ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

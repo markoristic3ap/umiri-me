@@ -7,6 +7,7 @@ const navItems = [
   { to: "/mood", icon: Smile, label: "Novo Raspoloženje" },
   { to: "/calendar", icon: Calendar, label: "Kalendar" },
   { to: "/statistics", icon: BarChart3, label: "Statistika" },
+  { to: "/share", icon: Share2, label: "Podeli" },
   { to: "/profile", icon: User, label: "Profil" },
 ];
 

@@ -74,8 +74,8 @@ export default function MoodEntry({ user }) {
                 }`}
                 style={isSelected ? { borderColor: mood.color } : {}}
               >
-                <span className={`text-4xl md:text-6xl block mb-2 mood-emoji ${isSelected ? 'selected' : ''}`}>
-                  {mood.emoji}
+                <span className={`block mb-2 mood-emoji ${isSelected ? 'selected' : ''}`}>
+                  <MoodIcon mood={key} size={isSelected ? 64 : 56} />
                 </span>
                 <span className={`text-xs md:text-sm ${isSelected ? 'text-[#2D3A3A] font-medium' : 'text-[#8A9999]'}`}>
                   {mood.label}

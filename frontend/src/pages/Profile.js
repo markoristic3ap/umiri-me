@@ -7,6 +7,7 @@ import AppLayout from "./AppLayout";
 import { API, fetchWithAuth } from "@/lib/api";
 
 export default function Profile({ user }) {
+  const navigate = useNavigate();
   const [gamification, setGamification] = useState(null);
   const [exporting, setExporting] = useState(false);
 

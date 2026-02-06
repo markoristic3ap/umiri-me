@@ -84,6 +84,11 @@ class CheckoutRequest(BaseModel):
     plan_id: str
     origin_url: str
 
+class AdminGrantPremium(BaseModel):
+    user_id: str
+    plan_id: str = "admin_grant"
+    days: int = 30
+
 # Auth helpers
 async def get_current_user(request: Request) -> dict:
     session_token = request.cookies.get("session_token")

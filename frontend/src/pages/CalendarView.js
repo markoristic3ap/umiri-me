@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AppLayout from "./AppLayout";
+import MoodIcon from "@/components/MoodIcon";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 
 const DAYS_SR = ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub", "Ned"];

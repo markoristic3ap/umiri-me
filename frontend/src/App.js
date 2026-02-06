@@ -87,6 +87,9 @@ function AppRouter() {
       <Route path="/premium/success" element={
         <ProtectedRoute>{() => <PaymentSuccess />}</ProtectedRoute>
       } />
+      <Route path="/weekly-report" element={
+        <ProtectedRoute>{({ user }) => <WeeklyReport user={user} />}</ProtectedRoute>
+      } />
     </Routes>
   );
 }

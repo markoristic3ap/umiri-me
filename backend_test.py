@@ -83,6 +83,28 @@ class MoodTrackerAPITester:
                 self.failed_tests.append({"test": "Mood Types Count", "error": f"Expected 8, got {mood_count}"})
         return False
 
+    def test_trigger_types(self):
+        """Test GET /api/trigger-types returns 12 trigger types"""
+        success, response = self.run_test("Trigger Types", "GET", "trigger-types", 200)
+        if success:
+            trigger_count = len(response) if isinstance(response, dict) else 0
+            if trigger_count == 12:
+                print(f"   Trigger types count: {trigger_count} ✓")
+                # Check for expected triggers
+                expected_triggers = ["posao", "san", "vezba", "drustvo", "ishrana", "porodica", 
+                                   "zdravlje", "vreme", "novac", "ucenje", "odmor", "kreativnost"]
+                missing_triggers = [t for t in expected_triggers if t not in response]
+                if not missing_triggers:
+                    print(f"   All expected triggers present ✓")
+                    return True
+                else:
+                    print(f"   Missing triggers: {missing_triggers}")
+                    self.failed_tests.append({"test": "Trigger Types Content", "error": f"Missing: {missing_triggers}"})
+            else:
+                print(f"   Expected 12 trigger types, got {trigger_count}")
+                self.failed_tests.append({"test": "Trigger Types Count", "error": f"Expected 12, got {trigger_count}"})
+        return False
+
     def create_test_session(self):
         """Create test session using mongosh"""
         print("\n🔧 Creating test user and session...")

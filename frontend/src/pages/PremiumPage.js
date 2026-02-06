@@ -79,31 +79,55 @@ export default function PremiumPage({ user }) {
   };
 
   if (subStatus?.is_premium) {
+    const isTrial = subStatus?.is_trial;
     return (
       <AppLayout user={user}>
         <div data-testid="premium-active-page" className="max-w-2xl mx-auto text-center space-y-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-            <div className="text-6xl mb-4">👑</div>
-            <h1 className="font-heading text-3xl font-bold text-[#2D3A3A]">Ti si Premium korisnik!</h1>
-            <p className="text-[#5C6B6B] mt-2">Uživaj u svim pogodnostima bez ograničenja.</p>
+            <div className="text-6xl mb-4">{isTrial ? "🎁" : "👑"}</div>
+            <h1 className="font-heading text-3xl font-bold text-[#2D3A3A]">
+              {isTrial ? "Tvoj Trial je Aktivan!" : "Ti si Premium korisnik!"}
+            </h1>
+            <p className="text-[#5C6B6B] mt-2">
+              {isTrial
+                ? `Još ${subStatus.days_left} ${subStatus.days_left === 1 ? 'dan' : 'dana'} besplatnog Premium pristupa.`
+                : "Uživaj u svim pogodnostima bez ograničenja."}
+            </p>
           </motion.div>
           <div className="card-soft p-6">
-            <p className="text-sm text-[#8A9999]">Plan: <span className="font-medium text-[#2D3A3A]">{subStatus.subscription?.plan_id === "yearly" ? "Godišnji" : "Mesečni"}</span></p>
-            {subStatus.subscription?.expires_at && (
+            <p className="text-sm text-[#8A9999]">
+              Plan: <span className="font-medium text-[#2D3A3A]">
+                {isTrial ? "7-dnevni Trial" : subStatus.plan_id === "yearly" ? "Godišnji" : "Mesečni"}
+              </span>
+            </p>
+            {subStatus.expires_at && (
               <p className="text-sm text-[#8A9999] mt-1">
-                Važi do: <span className="font-medium text-[#2D3A3A]">
-                  {new Date(subStatus.subscription.expires_at).toLocaleDateString("sr-Latn-RS", { day: "numeric", month: "long", year: "numeric" })}
+                {isTrial ? "Trial ističe" : "Važi do"}: <span className="font-medium text-[#2D3A3A]">
+                  {new Date(subStatus.expires_at).toLocaleDateString("sr-Latn-RS", { day: "numeric", month: "long", year: "numeric" })}
                 </span>
               </p>
             )}
           </div>
-          <button
-            data-testid="go-dashboard-btn"
-            onClick={() => navigate("/dashboard")}
-            className="btn-primary-soft"
-          >
-            Idi na Početnu
-          </button>
+          {isTrial ? (
+            <div className="space-y-3">
+              <p className="text-sm text-[#5C6B6B]">Želiš da nastaivaš sa Premium funkcijama nakon trial-a?</p>
+              <button
+                data-testid="upgrade-from-trial-btn"
+                onClick={() => { setSubStatus(null); }}
+                className="btn-primary-soft"
+              >
+                Nadogradi na Premium Plan
+              </button>
+            </div>
+          ) : (
+            <button
+              data-testid="go-dashboard-btn"
+              onClick={() => navigate("/dashboard")}
+              className="btn-primary-soft"
+            >
+              Idi na Početnu
+            </button>
+          )}
         </div>
       </AppLayout>
     );

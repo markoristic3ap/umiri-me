@@ -1,6 +1,42 @@
-const MoodIcon = ({ mood, size = 48, className = "" }) => {
+import { motion } from "framer-motion";
+
+const moodAnimations = {
+  srecan: {
+    animate: { y: [0, -4, 0] },
+    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+  },
+  odusevljen: {
+    animate: { scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] },
+    transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
+  },
+  miran: {
+    animate: { scale: [1, 1.04, 1] },
+    transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+  },
+  neutralan: {
+    animate: { opacity: [1, 0.85, 1] },
+    transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+  },
+  umoran: {
+    animate: { y: [0, 2, 0], rotate: [0, -2, 0] },
+    transition: { duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+  },
+  tuzan: {
+    animate: { y: [0, 3, 0] },
+    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+  },
+  anksiozan: {
+    animate: { x: [-1, 1, -1, 1, 0], scale: [1, 1.02, 1] },
+    transition: { duration: 1.2, repeat: Infinity, ease: "easeInOut" },
+  },
+  ljut: {
+    animate: { scale: [1, 1.05, 1] },
+    transition: { duration: 1, repeat: Infinity, ease: "easeInOut" },
+  },
+};
+
+const MoodIcon = ({ mood, size = 48, className = "", animated = false }) => {
   const s = size;
-  const r = s / 2;
   const icons = {
     srecan: (
       <svg width={s} height={s} viewBox="0 0 48 48" fill="none" className={className}>
@@ -82,7 +118,23 @@ const MoodIcon = ({ mood, size = 48, className = "" }) => {
     ),
   };
 
-  return icons[mood] || null;
+  const icon = icons[mood];
+  if (!icon) return null;
+
+  if (animated && moodAnimations[mood]) {
+    const anim = moodAnimations[mood];
+    return (
+      <motion.div
+        animate={anim.animate}
+        transition={anim.transition}
+        style={{ display: "inline-flex", width: s, height: s }}
+      >
+        {icon}
+      </motion.div>
+    );
+  }
+
+  return icon;
 };
 
 export default MoodIcon;

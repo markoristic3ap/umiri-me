@@ -362,7 +362,7 @@ export default function ShareCard({ user }) {
             onClick={handleShare}
             className="flex items-center justify-center gap-2 flex-1 bg-white border-2 border-[#D6E0D6] text-[#4A6C6F] rounded-full px-8 py-3 hover:bg-[#D6E0D6]/20 transition-colors font-medium"
           >
-            <Share2 className="w-4 h-4" />
+            <Send className="w-4 h-4" />
             Podeli
           </button>
         </div>

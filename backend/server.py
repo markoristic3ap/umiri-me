@@ -209,8 +209,8 @@ async def create_session(request: Request, response: Response):
 @api_router.get("/auth/me")
 async def get_me(request: Request):
     user = await get_current_user(request)
-    premium = await is_premium(user["user_id"])
-    return {**user, "is_premium": premium}
+    sub_info = await get_subscription_info(user["user_id"])
+    return {**user, **sub_info}
 
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):

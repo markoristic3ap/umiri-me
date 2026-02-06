@@ -181,6 +181,27 @@ class MoodTrackerAPITester:
             return True
         return False
 
+    def test_create_mood_with_triggers(self):
+        """Test POST /api/moods with triggers saves triggers correctly"""
+        if not self.session_token:
+            self.log_test("Create Mood with Triggers", False, "No session token available")
+            return False
+        
+        mood_data = {
+            "mood_type": "srecan",
+            "note": "Test mood with triggers",
+            "triggers": ["vezba", "drustvo", "odmor"]
+        }
+        success, response = self.run_test("Create Mood with Triggers", "POST", "moods", 200, mood_data)
+        if success and "mood_id" in response:
+            returned_triggers = response.get("triggers", [])
+            if returned_triggers == ["vezba", "drustvo", "odmor"]:
+                print(f"   Created mood with triggers: {returned_triggers}")
+                return True
+            else:
+                self.log_test("Create Mood with Triggers", False, f"Expected triggers: ['vezba','drustvo','odmor'], got {returned_triggers}")
+        return False
+
     def test_get_moods(self):
         """Test GET /api/moods returns mood entries"""
         if not self.session_token:

@@ -86,8 +86,8 @@ export default function AppLayout({ children, user }) {
       </aside>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBE8] z-50 flex justify-around py-2 px-2">
-        {navItems.map((item) => (
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBE8] z-50 flex justify-around py-2 px-1">
+        {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

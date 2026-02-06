@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Image, Crown, FileText, Moon, Sun } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Image, Crown, FileText, Moon, Sun, Shield } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { API } from "@/lib/api";
+import { API, fetchWithAuth } from "@/lib/api";
 
 const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Početna" },

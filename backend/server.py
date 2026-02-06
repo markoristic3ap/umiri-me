@@ -840,6 +840,381 @@ async def admin_check(request: Request):
     is_admin = user.get("email") in ADMIN_EMAILS
     return {"is_admin": is_admin}
 
+# Email Templates
+def get_mood_reminder_email(user_name: str) -> tuple:
+    subject = "Kako se danas osećaš? 🌿"
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #F9F9F7; margin: 0; padding: 40px 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: 0 auto;">
+            <tr>
+                <td style="background: linear-gradient(135deg, #4A6C6F 0%, #5C7F82 100%); border-radius: 20px 20px 0 0; padding: 30px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 300;">umiri.me</h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="background: white; padding: 40px 30px; border-radius: 0 0 20px 20px;">
+                    <h2 style="color: #2D3A3A; margin: 0 0 20px 0; font-size: 22px;">Zdravo, {user_name}! 👋</h2>
+                    <p style="color: #5C6B6B; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+                        Primetili smo da danas još nisi zabeležio/la svoje raspoloženje. 
+                        Odvoji minut da pratiš kako se osećaš – to je mali korak sa velikim uticajem na tvoje blagostanje.
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td align="center">
+                                <a href="https://umiri.me/mood" style="display: inline-block; background: #4A6C6F; color: white; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 16px; font-weight: 500;">
+                                    Zabeleži raspoloženje
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <p style="color: #8A9999; font-size: 13px; margin: 30px 0 0 0; text-align: center;">
+                        Svaki dan je nova prilika da se povežeš sa sobom. 🌱
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 20px; text-align: center;">
+                    <p style="color: #8A9999; font-size: 12px; margin: 0;">
+                        Ako ne želiš više da primaš ove podsetnice, možeš ih isključiti u 
+                        <a href="https://umiri.me/profile" style="color: #4A6C6F;">podešavanjima profila</a>.
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+    return subject, html
+
+def get_trial_warning_email(user_name: str, days_left: int) -> tuple:
+    subject = f"Tvoj trial ističe za {days_left} dana ⏰"
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #F9F9F7; margin: 0; padding: 40px 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: 0 auto;">
+            <tr>
+                <td style="background: linear-gradient(135deg, #E09F7D 0%, #D4896A 100%); border-radius: 20px 20px 0 0; padding: 30px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 300;">umiri.me</h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="background: white; padding: 40px 30px; border-radius: 0 0 20px 20px;">
+                    <h2 style="color: #2D3A3A; margin: 0 0 20px 0; font-size: 22px;">Zdravo, {user_name}! 👋</h2>
+                    <p style="color: #5C6B6B; font-size: 16px; line-height: 1.6; margin: 0 0 15px 0;">
+                        Tvoj <strong>7-dnevni besplatni trial</strong> ističe za <strong style="color: #E09F7D;">{days_left} dana</strong>.
+                    </p>
+                    <p style="color: #5C6B6B; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+                        Da bi nastavio/la da koristiš sve Premium funkcije – neograničene AI savete, 
+                        nedeljne izveštaje i CSV izvoz – nadogradi svoj nalog.
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #F2F4F0; border-radius: 12px; padding: 20px; margin: 0 0 25px 0;">
+                        <tr>
+                            <td>
+                                <p style="color: #2D3A3A; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">Premium uključuje:</p>
+                                <p style="color: #5C6B6B; font-size: 14px; margin: 0; line-height: 1.8;">
+                                    ✓ Neograničeni AI saveti<br>
+                                    ✓ Nedeljni AI izveštaji<br>
+                                    ✓ CSV izvoz podataka<br>
+                                    ✓ Prioritetna podrška
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td align="center">
+                                <a href="https://umiri.me/premium" style="display: inline-block; background: #E09F7D; color: white; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 16px; font-weight: 500;">
+                                    Nadogradi na Premium
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <p style="color: #8A9999; font-size: 13px; margin: 25px 0 0 0; text-align: center;">
+                        Samo 500 RSD mesečno ili 4200 RSD godišnje (uštedi 30%)
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+    return subject, html
+
+def get_trial_expired_email(user_name: str) -> tuple:
+    subject = "Tvoj trial je istekao – nastavi sa Premium! 💫"
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #F9F9F7; margin: 0; padding: 40px 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: 0 auto;">
+            <tr>
+                <td style="background: linear-gradient(135deg, #7CA5B8 0%, #6994A7 100%); border-radius: 20px 20px 0 0; padding: 30px; text-align: center;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 300;">umiri.me</h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="background: white; padding: 40px 30px; border-radius: 0 0 20px 20px;">
+                    <h2 style="color: #2D3A3A; margin: 0 0 20px 0; font-size: 22px;">Zdravo, {user_name}! 👋</h2>
+                    <p style="color: #5C6B6B; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                        Tvoj besplatni trial period je završen. Hvala ti što si isprobao/la Umiri.me!
+                    </p>
+                    <p style="color: #5C6B6B; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+                        I dalje možeš beležiti raspoloženja, ali Premium funkcije su sada zaključane. 
+                        Nadogradi da nastaviš da koristiš sve što ti pomaže na putu ka boljem blagostanju.
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td align="center">
+                                <a href="https://umiri.me/premium" style="display: inline-block; background: #4A6C6F; color: white; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 16px; font-weight: 500;">
+                                    Nastavi sa Premium
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <p style="color: #8A9999; font-size: 13px; margin: 25px 0 0 0; text-align: center;">
+                        Uvek možeš nastaviti besplatno – tvoji podaci su sačuvani. 🌿
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+    return subject, html
+
+# Email sending helper
+async def send_email_async(to_email: str, subject: str, html_content: str) -> bool:
+    if not RESEND_API_KEY or RESEND_API_KEY == 're_your_api_key_here':
+        logger.warning("Resend API key not configured, skipping email")
+        return False
+    
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Email sent to {to_email}: {subject}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email to {to_email}: {e}")
+        return False
+
+# Notification Settings Endpoints
+@api_router.get("/settings/notifications")
+async def get_notification_settings(request: Request):
+    user = await get_current_user(request)
+    settings = await db.notification_settings.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    
+    if not settings:
+        settings = {
+            "user_id": user["user_id"],
+            "email_reminders": True,
+            "reminder_time": "20:00",
+            "trial_warnings": True
+        }
+    
+    return settings
+
+@api_router.post("/settings/notifications")
+async def update_notification_settings(settings: NotificationSettings, request: Request):
+    user = await get_current_user(request)
+    
+    await db.notification_settings.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {
+            "user_id": user["user_id"],
+            "email_reminders": settings.email_reminders,
+            "reminder_time": settings.reminder_time,
+            "trial_warnings": settings.trial_warnings,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
+    )
+    
+    return {"message": "Podešavanja sačuvana", "settings": settings.model_dump()}
+
+# Send daily mood reminders (called by cron/scheduler)
+@api_router.post("/admin/send-reminders")
+async def send_daily_reminders(request: Request):
+    await require_admin(request)
+    
+    now = datetime.now(timezone.utc)
+    today = now.strftime("%Y-%m-%d")
+    current_hour = now.strftime("%H:00")
+    
+    # Find users who have reminders enabled for this hour and haven't logged mood today
+    users_with_reminders = await db.notification_settings.find(
+        {"email_reminders": True},
+        {"_id": 0}
+    ).to_list(10000)
+    
+    sent_count = 0
+    for ns in users_with_reminders:
+        # Check if it's time for this user's reminder (within the hour)
+        if ns.get("reminder_time", "20:00")[:2] + ":00" != current_hour:
+            continue
+        
+        user_id = ns["user_id"]
+        
+        # Check if user already logged mood today
+        existing_mood = await db.moods.find_one({"user_id": user_id, "date": today}, {"_id": 0})
+        if existing_mood:
+            continue
+        
+        # Get user info
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user or not user.get("email"):
+            continue
+        
+        # Send reminder
+        subject, html = get_mood_reminder_email(user.get("name", "korisniče"))
+        if await send_email_async(user["email"], subject, html):
+            sent_count += 1
+            # Log the sent email
+            await db.email_logs.insert_one({
+                "user_id": user_id,
+                "email_type": "mood_reminder",
+                "sent_at": now.isoformat()
+            })
+    
+    return {"message": f"Poslato {sent_count} podsetnika"}
+
+# Send trial warning emails (called by cron/scheduler)
+@api_router.post("/admin/send-trial-warnings")
+async def send_trial_warnings(request: Request):
+    await require_admin(request)
+    
+    now = datetime.now(timezone.utc)
+    
+    # Find users on trial
+    trial_subs = await db.subscriptions.find(
+        {"is_trial": True, "status": "active"},
+        {"_id": 0}
+    ).to_list(10000)
+    
+    sent_count = 0
+    for sub in trial_subs:
+        user_id = sub["user_id"]
+        
+        # Check notification settings
+        ns = await db.notification_settings.find_one({"user_id": user_id}, {"_id": 0})
+        if ns and not ns.get("trial_warnings", True):
+            continue
+        
+        # Calculate days left
+        expires_at = sub.get("expires_at", "")
+        if isinstance(expires_at, str):
+            expires_at = datetime.fromisoformat(expires_at)
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        
+        days_left = (expires_at - now).days
+        
+        # Send warning at 2 days and 1 day before expiry
+        if days_left not in [1, 2]:
+            continue
+        
+        # Check if we already sent this warning
+        existing_log = await db.email_logs.find_one({
+            "user_id": user_id,
+            "email_type": f"trial_warning_{days_left}",
+            "sent_at": {"$gte": (now - timedelta(hours=20)).isoformat()}
+        }, {"_id": 0})
+        if existing_log:
+            continue
+        
+        # Get user info
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user or not user.get("email"):
+            continue
+        
+        # Send warning
+        subject, html = get_trial_warning_email(user.get("name", "korisniče"), days_left)
+        if await send_email_async(user["email"], subject, html):
+            sent_count += 1
+            await db.email_logs.insert_one({
+                "user_id": user_id,
+                "email_type": f"trial_warning_{days_left}",
+                "sent_at": now.isoformat()
+            })
+    
+    # Also check for expired trials
+    expired_subs = await db.subscriptions.find(
+        {"is_trial": True, "status": "active"},
+        {"_id": 0}
+    ).to_list(10000)
+    
+    for sub in expired_subs:
+        expires_at = sub.get("expires_at", "")
+        if isinstance(expires_at, str):
+            expires_at = datetime.fromisoformat(expires_at)
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        
+        # Check if just expired (within last 24 hours)
+        if not (timedelta(hours=-24) < (expires_at - now) < timedelta(hours=0)):
+            continue
+        
+        user_id = sub["user_id"]
+        
+        # Check if we already sent expiry email
+        existing_log = await db.email_logs.find_one({
+            "user_id": user_id,
+            "email_type": "trial_expired",
+            "sent_at": {"$gte": (now - timedelta(days=1)).isoformat()}
+        }, {"_id": 0})
+        if existing_log:
+            continue
+        
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user or not user.get("email"):
+            continue
+        
+        subject, html = get_trial_expired_email(user.get("name", "korisniče"))
+        if await send_email_async(user["email"], subject, html):
+            await db.email_logs.insert_one({
+                "user_id": user_id,
+                "email_type": "trial_expired",
+                "sent_at": now.isoformat()
+            })
+    
+    return {"message": f"Poslato {sent_count} upozorenja za trial"}
+
+# Test email endpoint (admin only)
+@api_router.post("/admin/test-email")
+async def test_email(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    email_type = body.get("type", "reminder")
+    to_email = body.get("email")
+    
+    if not to_email:
+        raise HTTPException(status_code=400, detail="Email je obavezan")
+    
+    if email_type == "reminder":
+        subject, html = get_mood_reminder_email("Test Korisnik")
+    elif email_type == "trial_warning":
+        subject, html = get_trial_warning_email("Test Korisnik", 2)
+    elif email_type == "trial_expired":
+        subject, html = get_trial_expired_email("Test Korisnik")
+    else:
+        raise HTTPException(status_code=400, detail="Nepoznat tip emaila")
+    
+    success = await send_email_async(to_email, subject, html)
+    if success:
+        return {"message": f"Test email poslat na {to_email}"}
+    else:
+        raise HTTPException(status_code=500, detail="Greška pri slanju emaila. Proverite RESEND_API_KEY.")
+
 @api_router.get("/")
 async def root():
     return {"message": "Umiri.me API"}

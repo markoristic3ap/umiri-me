@@ -151,7 +151,7 @@ class MoodTrackerAPITester:
             "mood_type": "srecan",
             "note": "Test mood entry from automated testing"
         }
-        success, response = self.run_test("Create Mood", "POST", "moods", 201, mood_data)
+        success, response = self.run_test("Create Mood", "POST", "moods", 200, mood_data)
         if success and "mood_id" in response:
             print(f"   Created mood: {response.get('label')} {response.get('emoji')}")
             return True

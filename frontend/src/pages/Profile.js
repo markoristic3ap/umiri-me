@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Download, Send, Award, Flame, Loader2, Crown } from "lucide-react";
+import { Download, Send, Award, Flame, Loader2, Crown, Bell, Mail, Clock } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth } from "@/lib/api";
@@ -10,9 +10,16 @@ export default function Profile({ user }) {
   const navigate = useNavigate();
   const [gamification, setGamification] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [notifSettings, setNotifSettings] = useState({
+    email_reminders: true,
+    reminder_time: "20:00",
+    trial_warnings: true
+  });
+  const [savingNotif, setSavingNotif] = useState(false);
 
   useEffect(() => {
     loadGamification();
+    loadNotificationSettings();
   }, []);
 
   const loadGamification = async () => {
@@ -21,6 +28,36 @@ export default function Profile({ user }) {
       if (res.ok) setGamification(await res.json());
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const loadNotificationSettings = async () => {
+    try {
+      const res = await fetchWithAuth(`${API}/settings/notifications`);
+      if (res.ok) {
+        const data = await res.json();
+        setNotifSettings(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const saveNotificationSettings = async (newSettings) => {
+    setSavingNotif(true);
+    try {
+      const res = await fetchWithAuth(`${API}/settings/notifications`, {
+        method: "POST",
+        body: JSON.stringify(newSettings)
+      });
+      if (res.ok) {
+        setNotifSettings(newSettings);
+        toast.success("Podešavanja sačuvana");
+      }
+    } catch {
+      toast.error("Greška pri čuvanju");
+    } finally {
+      setSavingNotif(false);
     }
   };
 

@@ -75,6 +75,22 @@ export default function AppLayout({ children, user }) {
               {item.label}
             </NavLink>
           ))}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              data-testid="nav-admin"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all duration-200 mt-4 border-t border-[#EBEBE8] dark:border-[#2a3538] pt-4 ${
+                  isActive
+                    ? "bg-[#E8D4C8] dark:bg-[#3a2a2a] text-[#8B5A2B] dark:text-[#E09F7D] font-medium"
+                    : "text-[#8B5A2B] dark:text-[#B8A07C] hover:bg-[#F5EBE4] dark:hover:bg-[#302525]"
+                }`
+              }
+            >
+              <Shield className="w-5 h-5" strokeWidth={1.5} />
+              Admin Panel
+            </NavLink>
+          )}
         </nav>
 
         {/* User info */}

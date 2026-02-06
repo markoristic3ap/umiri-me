@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Share2, Award, Flame, Loader2 } from "lucide-react";
+import { Download, Send, Award, Flame, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth } from "@/lib/api";

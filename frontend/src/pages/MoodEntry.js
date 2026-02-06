@@ -101,21 +101,21 @@ export default function MoodEntry({ user }) {
               className="space-y-6 mb-8"
             >
               {/* Triggers */}
-              <div className="card-soft p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <MoodIcon mood={selectedMood} size={36} animated />
+              <div className="card-soft p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                  <MoodIcon mood={selectedMood} size={32} animated />
                   <div>
-                    <p className="font-heading font-medium text-[#2D3A3A]">
+                    <p className="font-heading text-sm sm:text-base font-medium text-[#2D3A3A]">
                       Šta utiče na tvoje raspoloženje?
                     </p>
-                    <p className="text-sm text-[#8A9999]">Izaberi faktore (opciono)</p>
+                    <p className="text-xs sm:text-sm text-[#8A9999]">Izaberi faktore (opciono)</p>
                   </div>
                 </div>
                 <TriggerSelector selected={triggers} onChange={setTriggers} />
               </div>
 
               {/* Note */}
-              <div className="card-soft p-6">
+              <div className="card-soft p-4 sm:p-6">
                 <p className="text-sm font-medium text-[#2D3A3A] mb-3">Beleška (opciono)</p>
                 <Textarea
                   data-testid="mood-note-input"

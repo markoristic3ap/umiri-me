@@ -1,0 +1,23 @@
+services:
+  backend:
+    image: ghcr.io/markoristic3ap/umiri-backend:latest
+    container_name: umiri-backend
+    env_file: ./backend/.env
+    restart: unless-stopped
+    expose:
+      - "8001"
+    networks:
+      - pickme_pickme
+
+  frontend:
+    image: ghcr.io/markoristic3ap/umiri-frontend:latest
+    container_name: umiri-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - pickme_pickme
+
+networks:
+  pickme_pickme:
+    external: true

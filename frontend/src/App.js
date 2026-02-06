@@ -91,6 +91,9 @@ function AppRouter() {
       <Route path="/weekly-report" element={
         <ProtectedRoute>{({ user }) => <WeeklyReport user={user} />}</ProtectedRoute>
       } />
+      <Route path="/admin" element={
+        <ProtectedRoute>{({ user }) => <AdminPanel user={user} />}</ProtectedRoute>
+      } />
     </Routes>
   );
 }

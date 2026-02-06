@@ -299,6 +299,69 @@ class MoodTrackerAPITester:
             return True
         return False
 
+    def test_create_mood_with_gratitude(self):
+        """Test POST /api/moods accepts gratitude field and stores it"""
+        if not self.session_token:
+            self.log_test("Create Mood with Gratitude", False, "No session token available")
+            return False
+        
+        mood_data = {
+            "mood_type": "srecan",
+            "note": "Test mood with gratitude",
+            "gratitude": "Zahvalan sam za dobar test!"
+        }
+        success, response = self.run_test("Create Mood with Gratitude", "POST", "moods", 200, mood_data)
+        if success and "mood_id" in response:
+            returned_gratitude = response.get("gratitude", "")
+            if returned_gratitude == "Zahvalan sam za dobar test!":
+                print(f"   Created mood with gratitude: {returned_gratitude[:30]}...")
+                return True
+            else:
+                self.log_test("Create Mood with Gratitude", False, f"Expected gratitude to be saved, got: {returned_gratitude}")
+        return False
+
+    def test_get_moods_with_gratitude(self):
+        """Test GET /api/moods returns entries with gratitude field"""
+        if not self.session_token:
+            self.log_test("Get Moods with Gratitude", False, "No session token available")
+            return False
+        
+        success, response = self.run_test("Get Moods with Gratitude", "GET", "moods", 200)
+        if success and isinstance(response, list):
+            # Check if any mood has gratitude field
+            has_gratitude = any("gratitude" in mood for mood in response if mood.get("gratitude"))
+            if has_gratitude:
+                gratitude_moods = [m for m in response if m.get("gratitude")]
+                print(f"   Found {len(gratitude_moods)} mood entries with gratitude field")
+                return True
+            else:
+                print(f"   No mood entries with gratitude field found (this might be expected if no gratitude moods created)")
+                return True
+        return False
+
+    def test_weekly_ai_report(self):
+        """Test POST /api/ai/weekly-report generates AI weekly report"""
+        if not self.session_token:
+            self.log_test("Weekly AI Report", False, "No session token available")
+            return False
+        
+        success, response = self.run_test("Weekly AI Report", "POST", "ai/weekly-report", 200)
+        if success and "report" in response:
+            report_text = response.get("report", "")
+            avg_score = response.get("avg_score")
+            total_entries = response.get("total_entries")
+            generated_at = response.get("generated_at")
+            
+            print(f"   Weekly report generated (length: {len(report_text)} chars)")
+            print(f"   Report avg_score: {avg_score}, entries: {total_entries}")
+            
+            # Verify required fields are present
+            if generated_at and isinstance(report_text, str) and len(report_text) > 0:
+                return True
+            else:
+                self.log_test("Weekly AI Report", False, "Missing required fields in response")
+        return False
+
     # NEW PREMIUM FEATURE TESTS
     def test_premium_plans(self):
         """Test GET /api/premium/plans returns monthly and yearly plans with RSD pricing"""

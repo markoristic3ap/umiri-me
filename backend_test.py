@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timezone
 
 class MoodTrackerAPITester:
-    def __init__(self, base_url="https://mood-tracker-321.preview.emergentagent.com"):
+    def __init__(self, base_url="https://umiri-me.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         # Use existing test session as per review request
@@ -432,7 +432,7 @@ class MoodTrackerAPITester:
         
         checkout_data = {
             "plan_id": "monthly",
-            "origin_url": "https://mood-tracker-321.preview.emergentagent.com"
+            "origin_url": "https://umiri-me.preview.emergentagent.com"
         }
         success, response = self.run_test("Subscription Checkout", "POST", "subscription/checkout", 200, checkout_data)
         if success and "url" in response and "session_id" in response:

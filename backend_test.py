@@ -358,7 +358,9 @@ class MoodTrackerAPITester:
         success, response = self.run_test("Auth Me Premium Field", "GET", "auth/me", 200)
         if success and "is_premium" in response:
             is_premium = response.get("is_premium")
-            print(f"   Auth/me includes is_premium field: {is_premium}")
+            is_trial = response.get("is_trial")
+            days_left = response.get("days_left")
+            print(f"   Auth/me includes is_premium: {is_premium}, is_trial: {is_trial}, days_left: {days_left}")
             return True
         else:
             self.log_test("Auth Me Premium Field", False, "is_premium field missing from /auth/me response")

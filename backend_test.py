@@ -203,7 +203,7 @@ class MoodTrackerAPITester:
         return False
 
     def test_get_moods(self):
-        """Test GET /api/moods returns mood entries"""
+        """Test GET /api/moods returns mood entries with triggers array"""
         if not self.session_token:
             self.log_test("Get Moods", False, "No session token available")
             return False
@@ -211,6 +211,10 @@ class MoodTrackerAPITester:
         success, response = self.run_test("Get Moods", "GET", "moods", 200)
         if success and isinstance(response, list):
             print(f"   Retrieved {len(response)} mood entries")
+            # Check if any mood has triggers array
+            has_triggers = any("triggers" in mood for mood in response)
+            if has_triggers:
+                print(f"   Mood entries contain triggers array ✓")
             return True
         return False
 

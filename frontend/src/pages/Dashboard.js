@@ -124,7 +124,7 @@ export default function Dashboard({ user }) {
               </div>
             ) : (
               <div className="text-center">
-                <div className="text-6xl mb-3 opacity-30">😊</div>
+                <div className="flex justify-center mb-3 opacity-30"><MoodIcon mood="miran" size={72} /></div>
                 <h3 className="font-heading text-lg text-[#2D3A3A]">Zabeleži raspoloženje</h3>
                 <p className="text-sm text-[#8A9999] mt-1">Kako se danas osećaš?</p>
                 <button

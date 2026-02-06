@@ -28,6 +28,11 @@ export default function Profile({ user }) {
     setExporting(true);
     try {
       const res = await fetch(`${API}/moods/export`, { credentials: 'include' });
+      if (res.status === 403) {
+        toast.error("CSV izvoz je dostupan samo za Premium korisnike");
+        navigate('/premium');
+        return;
+      }
       if (res.ok) {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);

@@ -115,7 +115,7 @@ export default function Dashboard({ user }) {
           >
             {todayMood ? (
               <div className="text-center">
-                <div className="text-6xl mb-3">{todayMood.emoji}</div>
+                <div className="flex justify-center mb-3"><MoodIcon mood={todayMood.mood_type} size={72} /></div>
                 <h3 className="font-heading text-lg text-[#2D3A3A]">{todayMood.label}</h3>
                 <p className="text-sm text-[#8A9999] mt-1">Današnje raspoloženje</p>
                 {todayMood.note && (

@@ -93,6 +93,8 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(status_code=404, detail="Korisnik nije pronađen")
     return user
 
+TRIAL_DAYS = 7
+
 async def is_premium(user_id: str) -> bool:
     sub = await db.subscriptions.find_one(
         {"user_id": user_id, "status": "active"},
@@ -106,6 +108,50 @@ async def is_premium(user_id: str) -> bool:
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
     return expires_at > datetime.now(timezone.utc)
+
+async def get_subscription_info(user_id: str) -> dict:
+    sub = await db.subscriptions.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 0}
+    )
+    if not sub:
+        return {"is_premium": False, "is_trial": False, "days_left": 0, "plan_id": None}
+    
+    expires_at = sub.get("expires_at", "")
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    now = datetime.now(timezone.utc)
+    is_active = expires_at > now
+    days_left = max(0, (expires_at - now).days) if is_active else 0
+    is_trial = sub.get("is_trial", False)
+    
+    return {
+        "is_premium": is_active,
+        "is_trial": is_trial and is_active,
+        "days_left": days_left,
+        "plan_id": sub.get("plan_id"),
+        "expires_at": sub.get("expires_at")
+    }
+
+async def activate_trial(user_id: str):
+    existing = await db.subscriptions.find_one({"user_id": user_id}, {"_id": 0})
+    if existing:
+        return
+    
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(days=TRIAL_DAYS)
+    await db.subscriptions.insert_one({
+        "user_id": user_id,
+        "plan_id": "trial",
+        "is_trial": True,
+        "status": "active",
+        "started_at": now.isoformat(),
+        "expires_at": expires_at.isoformat(),
+        "updated_at": now.isoformat()
+    })
 
 # Auth endpoints
 @api_router.post("/auth/session")

@@ -7,10 +7,11 @@ import logging
 import httpx
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone, timedelta
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -20,12 +21,19 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Premium plan config - amount in RSD
+PREMIUM_PLANS = {
+    "monthly": {"amount": 500.00, "currency": "rsd", "label": "Mesečni Premium", "period": 30},
+    "yearly": {"amount": 4200.00, "currency": "rsd", "label": "Godišnji Premium (uštedi 30%)", "period": 365},
+}
 
 MOOD_TYPES = {
     "srecan": {"emoji": "😊", "label": "Srećan", "score": 5, "color": "#769F78"},
@@ -47,31 +55,16 @@ BADGES = [
     {"id": "century", "name": "Stotka", "description": "100 zabeleženih raspoloženja", "icon": "💯", "requirement": 100},
 ]
 
+FREE_AI_TIPS_PER_DAY = 1
+
 # Models
 class MoodCreate(BaseModel):
     mood_type: str
     note: Optional[str] = None
 
-class MoodEntry(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-    mood_id: str
-    user_id: str
-    mood_type: str
-    emoji: str
-    label: str
-    score: int
-    color: str
-    note: Optional[str] = None
-    created_at: str
-    date: str
-
-class UserProfile(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-    user_id: str
-    email: str
-    name: str
-    picture: Optional[str] = None
-    created_at: Optional[str] = None
+class CheckoutRequest(BaseModel):
+    plan_id: str
+    origin_url: str
 
 # Auth helpers
 async def get_current_user(request: Request) -> dict:
@@ -99,6 +92,20 @@ async def get_current_user(request: Request) -> dict:
     if not user:
         raise HTTPException(status_code=404, detail="Korisnik nije pronađen")
     return user
+
+async def is_premium(user_id: str) -> bool:
+    sub = await db.subscriptions.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 0}
+    )
+    if not sub:
+        return False
+    expires_at = sub.get("expires_at", "")
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    return expires_at > datetime.now(timezone.utc)
 
 # Auth endpoints
 @api_router.post("/auth/session")
@@ -143,12 +150,8 @@ async def create_session(request: Request, response: Response):
     })
     
     response.set_cookie(
-        key="session_token",
-        value=session_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
+        key="session_token", value=session_token,
+        httponly=True, secure=True, samesite="none", path="/",
         max_age=7 * 24 * 60 * 60
     )
     
@@ -158,7 +161,8 @@ async def create_session(request: Request, response: Response):
 @api_router.get("/auth/me")
 async def get_me(request: Request):
     user = await get_current_user(request)
-    return user
+    premium = await is_premium(user["user_id"])
+    return {**user, "is_premium": premium}
 
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
@@ -172,7 +176,6 @@ async def logout(request: Request, response: Response):
 @api_router.post("/moods")
 async def create_mood(mood_data: MoodCreate, request: Request):
     user = await get_current_user(request)
-    
     if mood_data.mood_type not in MOOD_TYPES:
         raise HTTPException(status_code=400, detail="Nepoznat tip raspoloženja")
     
@@ -180,10 +183,7 @@ async def create_mood(mood_data: MoodCreate, request: Request):
     now = datetime.now(timezone.utc)
     today = now.strftime("%Y-%m-%d")
     
-    existing = await db.moods.find_one(
-        {"user_id": user["user_id"], "date": today}, {"_id": 0}
-    )
-    
+    existing = await db.moods.find_one({"user_id": user["user_id"], "date": today}, {"_id": 0})
     mood_entry = {
         "mood_id": f"mood_{uuid.uuid4().hex[:12]}",
         "user_id": user["user_id"],
@@ -198,10 +198,7 @@ async def create_mood(mood_data: MoodCreate, request: Request):
     }
     
     if existing:
-        await db.moods.update_one(
-            {"user_id": user["user_id"], "date": today},
-            {"$set": mood_entry}
-        )
+        await db.moods.update_one({"user_id": user["user_id"], "date": today}, {"$set": mood_entry})
     else:
         await db.moods.insert_one(mood_entry)
     
@@ -219,31 +216,20 @@ async def get_moods(request: Request, limit: int = 30, offset: int = 0):
 async def get_calendar_moods(year: int, month: int, request: Request):
     user = await get_current_user(request)
     start = f"{year}-{month:02d}-01"
-    if month == 12:
-        end = f"{year + 1}-01-01"
-    else:
-        end = f"{year}-{month + 1:02d}-01"
-    
+    end = f"{year + 1}-01-01" if month == 12 else f"{year}-{month + 1:02d}-01"
     moods = await db.moods.find(
-        {"user_id": user["user_id"], "date": {"$gte": start, "$lt": end}},
-        {"_id": 0}
+        {"user_id": user["user_id"], "date": {"$gte": start, "$lt": end}}, {"_id": 0}
     ).to_list(31)
     return moods
 
 @api_router.get("/moods/stats")
 async def get_mood_stats(request: Request):
     user = await get_current_user(request)
-    all_moods = await db.moods.find(
-        {"user_id": user["user_id"]}, {"_id": 0}
-    ).sort("date", -1).to_list(1000)
+    all_moods = await db.moods.find({"user_id": user["user_id"]}, {"_id": 0}).sort("date", -1).to_list(1000)
     
     total = len(all_moods)
     if total == 0:
-        return {
-            "total": 0, "streak": 0, "longest_streak": 0,
-            "mood_distribution": {}, "avg_score": 0,
-            "weekly_avg": [], "unique_moods": 0
-        }
+        return {"total": 0, "streak": 0, "longest_streak": 0, "mood_distribution": {}, "avg_score": 0, "weekly_avg": [], "unique_moods": 0}
     
     mood_counts = {}
     for m in all_moods:
@@ -251,8 +237,8 @@ async def get_mood_stats(request: Request):
         mood_counts[mt] = mood_counts.get(mt, 0) + 1
     
     avg_score = sum(m["score"] for m in all_moods) / total
-    
     dates = sorted(set(m["date"] for m in all_moods), reverse=True)
+    
     streak = 0
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     check_date = today
@@ -273,45 +259,36 @@ async def get_mood_stats(request: Request):
         else:
             prev = datetime.strptime(sorted_dates[i-1], "%Y-%m-%d")
             curr = datetime.strptime(d, "%Y-%m-%d")
-            if (curr - prev).days == 1:
-                current += 1
-            else:
-                current = 1
+            current = current + 1 if (curr - prev).days == 1 else 1
         longest = max(longest, current)
     
     last_7 = all_moods[:7]
-    weekly_avg = []
-    for m in reversed(last_7):
-        weekly_avg.append({"date": m["date"], "score": m["score"], "emoji": m["emoji"], "label": m["label"]})
+    weekly_avg = [{"date": m["date"], "score": m["score"], "emoji": m["emoji"], "label": m["label"]} for m in reversed(last_7)]
     
     return {
-        "total": total,
-        "streak": streak,
-        "longest_streak": longest,
-        "mood_distribution": mood_counts,
-        "avg_score": round(avg_score, 1),
-        "weekly_avg": weekly_avg,
-        "unique_moods": len(set(m["mood_type"] for m in all_moods))
+        "total": total, "streak": streak, "longest_streak": longest,
+        "mood_distribution": mood_counts, "avg_score": round(avg_score, 1),
+        "weekly_avg": weekly_avg, "unique_moods": len(set(m["mood_type"] for m in all_moods))
     }
 
 @api_router.get("/moods/export")
 async def export_moods(request: Request):
     user = await get_current_user(request)
-    moods = await db.moods.find(
-        {"user_id": user["user_id"]}, {"_id": 0}
-    ).sort("date", 1).to_list(10000)
+    premium = await is_premium(user["user_id"])
+    if not premium:
+        raise HTTPException(status_code=403, detail="CSV izvoz je dostupan samo za Premium korisnike")
     
-    import io
-    import csv
+    moods = await db.moods.find({"user_id": user["user_id"]}, {"_id": 0}).sort("date", 1).to_list(10000)
+    
+    import io, csv
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(["Datum", "Raspoloženje", "Emoji", "Ocena", "Beleška"])
     for m in moods:
         writer.writerow([m["date"], m["label"], m["emoji"], m["score"], m.get("note", "")])
     
-    csv_content = output.getvalue()
     return Response(
-        content=csv_content,
+        content=output.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=umiri_me_raspolozenja.csv"}
     )
@@ -320,9 +297,7 @@ async def export_moods(request: Request):
 @api_router.get("/gamification/stats")
 async def get_gamification(request: Request):
     user = await get_current_user(request)
-    all_moods = await db.moods.find(
-        {"user_id": user["user_id"]}, {"_id": 0}
-    ).to_list(10000)
+    all_moods = await db.moods.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(10000)
     
     total = len(all_moods)
     unique_moods = len(set(m["mood_type"] for m in all_moods))
@@ -357,22 +332,21 @@ async def get_gamification(request: Request):
             earned = True
         earned_badges.append({**badge, "earned": earned})
     
-    return {
-        "streak": streak,
-        "total_entries": total,
-        "unique_moods": unique_moods,
-        "notes_count": notes_count,
-        "badges": earned_badges
-    }
+    return {"streak": streak, "total_entries": total, "unique_moods": unique_moods, "notes_count": notes_count, "badges": earned_badges}
 
-# AI Tips
+# AI Tips with free tier limit
 @api_router.post("/ai/tips")
 async def get_ai_tip(request: Request):
     user = await get_current_user(request)
+    premium = await is_premium(user["user_id"])
     
-    recent_moods = await db.moods.find(
-        {"user_id": user["user_id"]}, {"_id": 0}
-    ).sort("date", -1).limit(7).to_list(7)
+    if not premium:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        tips_today = await db.ai_tips_usage.count_documents({"user_id": user["user_id"], "date": today})
+        if tips_today >= FREE_AI_TIPS_PER_DAY:
+            raise HTTPException(status_code=403, detail="Dostigao/la si dnevni limit besplatnih AI saveta. Nadogradi na Premium za neograničene savete!")
+    
+    recent_moods = await db.moods.find({"user_id": user["user_id"]}, {"_id": 0}).sort("date", -1).limit(7).to_list(7)
     
     mood_summary = ""
     if recent_moods:
@@ -386,28 +360,198 @@ async def get_ai_tip(request: Request):
     try:
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            session_id=f"tips_{user['user_id']}_{datetime.now().strftime('%Y%m%d')}",
+            session_id=f"tips_{user['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             system_message="""Ti si nežan i mudar savetnik za mentalno zdravlje u aplikaciji Umiri.me.
 Pišeš na srpskom jeziku, latiničnim pismom.
-Daješ kratke, tople i praktične savete baziranog na raspoloženju korisnika.
+Daješ kratke, tople i praktične savete bazirane na raspoloženju korisnika.
 Tvoj ton je prijateljski, umirujući i podržavajući.
 Nikad ne dijagnostikuješ i ne zamenjuješ profesionalnu pomoć.
 Odgovaraš u 2-3 kratke rečenice. Možeš dodati i jedan emoji."""
         )
         chat.with_model("openai", "gpt-5.2")
-        
         user_msg = UserMessage(text=f"{mood_summary}\n\nDaj mi personalizovani savet za danas baziran na mojim raspoloženjima.")
         tip_text = await chat.send_message(user_msg)
+        
+        # Track usage for free tier
+        if not premium:
+            await db.ai_tips_usage.insert_one({
+                "user_id": user["user_id"],
+                "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
         
         return {"tip": tip_text, "generated_at": datetime.now(timezone.utc).isoformat()}
     except Exception as e:
         logger.error(f"AI tip error: {e}")
         return {"tip": "Danas odvoji vreme za sebe. Čak i pet minuta tišine može napraviti veliku razliku. 🌿", "generated_at": datetime.now(timezone.utc).isoformat()}
 
-# Mood types reference
+# Stripe Payment Endpoints
+@api_router.get("/subscription/status")
+async def get_subscription_status(request: Request):
+    user = await get_current_user(request)
+    premium = await is_premium(user["user_id"])
+    sub = await db.subscriptions.find_one({"user_id": user["user_id"], "status": "active"}, {"_id": 0})
+    
+    return {
+        "is_premium": premium,
+        "subscription": sub,
+        "plans": PREMIUM_PLANS
+    }
+
+@api_router.post("/subscription/checkout")
+async def create_checkout(checkout_req: CheckoutRequest, request: Request):
+    user = await get_current_user(request)
+    
+    if checkout_req.plan_id not in PREMIUM_PLANS:
+        raise HTTPException(status_code=400, detail="Nepoznat plan")
+    
+    plan = PREMIUM_PLANS[checkout_req.plan_id]
+    origin_url = checkout_req.origin_url
+    
+    success_url = f"{origin_url}/premium/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{origin_url}/premium"
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    checkout_request = CheckoutSessionRequest(
+        amount=plan["amount"],
+        currency=plan["currency"],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "user_id": user["user_id"],
+            "plan_id": checkout_req.plan_id,
+            "user_email": user["email"]
+        }
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+    
+    # Create payment transaction record
+    await db.payment_transactions.insert_one({
+        "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+        "session_id": session.session_id,
+        "user_id": user["user_id"],
+        "plan_id": checkout_req.plan_id,
+        "amount": plan["amount"],
+        "currency": plan["currency"],
+        "payment_status": "initiated",
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"url": session.url, "session_id": session.session_id}
+
+@api_router.get("/subscription/checkout/status/{session_id}")
+async def check_checkout_status(session_id: str, request: Request):
+    user = await get_current_user(request)
+    
+    txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    if not txn:
+        raise HTTPException(status_code=404, detail="Transakcija nije pronađena")
+    
+    if txn.get("payment_status") == "paid":
+        return {"status": "complete", "payment_status": "paid", "message": "Plaćanje uspešno!"}
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    try:
+        checkout_status = await stripe_checkout.get_checkout_status(session_id)
+        
+        await db.payment_transactions.update_one(
+            {"session_id": session_id},
+            {"$set": {
+                "status": checkout_status.status,
+                "payment_status": checkout_status.payment_status,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        if checkout_status.payment_status == "paid":
+            already_activated = await db.subscriptions.find_one({"session_id": session_id}, {"_id": 0})
+            if not already_activated:
+                plan = PREMIUM_PLANS.get(txn.get("plan_id", "monthly"), PREMIUM_PLANS["monthly"])
+                expires_at = datetime.now(timezone.utc) + timedelta(days=plan["period"])
+                
+                await db.subscriptions.update_one(
+                    {"user_id": txn["user_id"]},
+                    {"$set": {
+                        "user_id": txn["user_id"],
+                        "plan_id": txn.get("plan_id", "monthly"),
+                        "session_id": session_id,
+                        "status": "active",
+                        "started_at": datetime.now(timezone.utc).isoformat(),
+                        "expires_at": expires_at.isoformat(),
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }},
+                    upsert=True
+                )
+        
+        return {
+            "status": checkout_status.status,
+            "payment_status": checkout_status.payment_status,
+            "message": "Plaćanje uspešno!" if checkout_status.payment_status == "paid" else "Čeka se plaćanje..."
+        }
+    except Exception as e:
+        logger.error(f"Checkout status error: {e}")
+        raise HTTPException(status_code=500, detail="Greška pri proveri statusa")
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    body = await request.body()
+    signature = request.headers.get("Stripe-Signature", "")
+    
+    host_url = str(request.base_url).rstrip('/')
+    webhook_url = f"{host_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    try:
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        if webhook_response.payment_status == "paid":
+            session_id = webhook_response.session_id
+            txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+            if txn:
+                await db.payment_transactions.update_one(
+                    {"session_id": session_id},
+                    {"$set": {"payment_status": "paid", "status": "complete", "updated_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                
+                already_activated = await db.subscriptions.find_one({"session_id": session_id}, {"_id": 0})
+                if not already_activated:
+                    plan = PREMIUM_PLANS.get(txn.get("plan_id", "monthly"), PREMIUM_PLANS["monthly"])
+                    expires_at = datetime.now(timezone.utc) + timedelta(days=plan["period"])
+                    await db.subscriptions.update_one(
+                        {"user_id": txn["user_id"]},
+                        {"$set": {
+                            "user_id": txn["user_id"],
+                            "plan_id": txn.get("plan_id", "monthly"),
+                            "session_id": session_id,
+                            "status": "active",
+                            "started_at": datetime.now(timezone.utc).isoformat(),
+                            "expires_at": expires_at.isoformat(),
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }},
+                        upsert=True
+                    )
+        
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return {"status": "error"}
+
 @api_router.get("/mood-types")
 async def get_mood_types():
     return MOOD_TYPES
+
+@api_router.get("/premium/plans")
+async def get_premium_plans():
+    return PREMIUM_PLANS
 
 @api_router.get("/")
 async def root():

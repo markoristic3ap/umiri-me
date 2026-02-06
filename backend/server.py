@@ -61,6 +61,22 @@ FREE_AI_TIPS_PER_DAY = 1
 class MoodCreate(BaseModel):
     mood_type: str
     note: Optional[str] = None
+    triggers: Optional[List[str]] = None
+
+TRIGGER_TYPES = {
+    "posao": {"label": "Posao", "icon": "briefcase"},
+    "san": {"label": "San", "icon": "moon"},
+    "vezba": {"label": "Vežbanje", "icon": "dumbbell"},
+    "drustvo": {"label": "Društvo", "icon": "users"},
+    "ishrana": {"label": "Ishrana", "icon": "utensils"},
+    "porodica": {"label": "Porodica", "icon": "home"},
+    "zdravlje": {"label": "Zdravlje", "icon": "heart-pulse"},
+    "vreme": {"label": "Vreme", "icon": "cloud"},
+    "novac": {"label": "Novac", "icon": "wallet"},
+    "ucenje": {"label": "Učenje", "icon": "book-open"},
+    "odmor": {"label": "Odmor", "icon": "palmtree"},
+    "kreativnost": {"label": "Kreativnost", "icon": "palette"},
+}
 
 class CheckoutRequest(BaseModel):
     plan_id: str

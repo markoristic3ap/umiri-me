@@ -99,6 +99,8 @@ Aplikacija automatski kreira potrebne kolekcije:
 - `subscriptions` - Pretplate (Premium + Trial)
 - `payment_transactions` - Stripe transakcije
 - `ai_tips_usage` - Praćenje korišćenja AI saveta
+- `notification_settings` - Podešavanja email obaveštenja
+- `email_logs` - Log poslatih emailova
 
 ## Gde Dobiti Ključeve
 

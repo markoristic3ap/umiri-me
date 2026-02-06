@@ -26,6 +26,20 @@ const mobileNavItems = [
 export default function AppLayout({ children, user }) {
   const navigate = useNavigate();
   const { isDark, toggle: toggleTheme } = useTheme();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetchWithAuth(`${API}/admin/check`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsAdmin(data.is_admin);
+        }
+      } catch {}
+    };
+    checkAdmin();
+  }, []);
 
   const handleLogout = async () => {
     await fetch(`${API}/auth/logout`, { method: 'POST', credentials: 'include' });

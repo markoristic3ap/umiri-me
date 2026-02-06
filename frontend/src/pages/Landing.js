@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Leaf, Heart, BarChart3, Calendar, Sparkles } from "lucide-react";
+import MoodIcon from "@/components/MoodIcon";
 
 export default function Landing() {
   const navigate = useNavigate();

@@ -22,6 +22,8 @@ db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 ADMIN_EMAILS = [e.strip() for e in os.environ.get('ADMIN_EMAILS', '').split(',') if e.strip()]
 
 app = FastAPI()
@@ -177,41 +179,59 @@ async def activate_trial(user_id: str):
     })
 
 # Auth endpoints
-@api_router.post("/auth/session")
-async def create_session(request: Request, response: Response):
+@api_router.post("/auth/google")
+async def google_auth(request: Request, response: Response):
     body = await request.json()
-    session_id = body.get("session_id")
-    if not session_id:
-        raise HTTPException(status_code=400, detail="session_id je obavezan")
-    
+    code = body.get("code")
+    redirect_uri = body.get("redirect_uri")
+    if not code:
+        raise HTTPException(status_code=400, detail="Authorization code je obavezan")
+
+    # Exchange authorization code for tokens
     async with httpx.AsyncClient() as client_http:
-        resp = await client_http.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_id}
+        token_resp = await client_http.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+            },
         )
-        if resp.status_code != 200:
+        if token_resp.status_code != 200:
+            logger.error(f"Google token exchange failed: {token_resp.text}")
             raise HTTPException(status_code=401, detail="Neuspešna autentifikacija")
-        user_data = resp.json()
-    
+        tokens = token_resp.json()
+
+        # Get user info from Google
+        userinfo_resp = await client_http.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {tokens['access_token']}"},
+        )
+        if userinfo_resp.status_code != 200:
+            raise HTTPException(status_code=401, detail="Neuspešno dobijanje korisničkih podataka")
+        user_data = userinfo_resp.json()
+
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     existing = await db.users.find_one({"email": user_data["email"]}, {"_id": 0})
     if existing:
         user_id = existing["user_id"]
         await db.users.update_one(
             {"email": user_data["email"]},
-            {"$set": {"name": user_data["name"], "picture": user_data.get("picture", "")}}
+            {"$set": {"name": user_data.get("name", ""), "picture": user_data.get("picture", "")}}
         )
     else:
         await db.users.insert_one({
             "user_id": user_id,
             "email": user_data["email"],
-            "name": user_data["name"],
+            "name": user_data.get("name", ""),
             "picture": user_data.get("picture", ""),
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         # Auto-activate 7-day trial for new users
         await activate_trial(user_id)
-    
+
     session_token = f"session_{uuid.uuid4().hex}"
     await db.user_sessions.insert_one({
         "user_id": user_id,
@@ -219,13 +239,13 @@ async def create_session(request: Request, response: Response):
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
-    
+
     response.set_cookie(
         key="session_token", value=session_token,
         httponly=True, secure=True, samesite="none", path="/",
         max_age=7 * 24 * 60 * 60
     )
-    
+
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     return user
 

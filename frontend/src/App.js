@@ -55,15 +55,10 @@ function ProtectedRoute({ children }) {
 }
 
 function AppRouter() {
-  const location = useLocation();
-  // REMINDER: Check for session_id synchronously during render
-  if (location.hash?.includes('session_id=')) {
-    return <AuthCallback />;
-  }
-
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>{({ user }) => <Dashboard user={user} />}</ProtectedRoute>
       } />

@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { API } from "@/lib/api";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -11,20 +12,22 @@ export default function AuthCallback() {
     hasProcessed.current = true;
 
     const processAuth = async () => {
-      const hash = window.location.hash;
-      const sessionId = new URLSearchParams(hash.substring(1)).get('session_id');
-      
-      if (!sessionId) {
+      const code = searchParams.get('code');
+
+      if (!code) {
         navigate('/', { replace: true });
         return;
       }
 
       try {
-        const response = await fetch(`${API}/auth/session`, {
+        const response = await fetch(`${API}/auth/google`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session_id: sessionId }),
+          body: JSON.stringify({
+            code,
+            redirect_uri: window.location.origin + '/auth/callback',
+          }),
         });
 
         if (!response.ok) throw new Error('Auth failed');
@@ -37,7 +40,7 @@ export default function AuthCallback() {
     };
 
     processAuth();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   return (
     <div className="min-h-screen bg-[#F9F9F7] flex items-center justify-center">

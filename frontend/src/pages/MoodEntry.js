@@ -61,7 +61,7 @@ export default function MoodEntry({ user }) {
         </motion.div>
 
         {/* Emoji Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10">
           {moodOrder.map((key, i) => {
             const mood = MOOD_TYPES[key];
             const isSelected = selectedMood === key;
@@ -73,17 +73,18 @@ export default function MoodEntry({ user }) {
                 transition={{ delay: i * 0.05 }}
                 data-testid={`mood-btn-${key}`}
                 onClick={() => setSelectedMood(key)}
-                className={`card-soft p-4 md:p-6 text-center transition-all duration-300 ${
+                className={`card-soft p-3 sm:p-6 text-center transition-all duration-300 ${
                   isSelected
-                    ? "ring-2 ring-[#4A6C6F] shadow-lg scale-105"
-                    : "hover:scale-105 hover:shadow-md"
+                    ? "ring-2 ring-[#4A6C6F] shadow-lg scale-[1.03]"
+                    : "hover:scale-[1.03] hover:shadow-md"
                 }`}
                 style={isSelected ? { borderColor: mood.color } : {}}
               >
-                <span className={`block mb-2 mood-emoji ${isSelected ? 'selected' : ''}`}>
-                  <MoodIcon mood={key} size={isSelected ? 64 : 56} animated={isSelected} />
+                <span className={`block mb-1.5 sm:mb-2 mood-emoji ${isSelected ? 'selected' : ''} flex justify-center`}>
+                  <MoodIcon mood={key} size={isSelected ? 48 : 40} animated={isSelected} className="sm:hidden" />
+                  <MoodIcon mood={key} size={isSelected ? 64 : 56} animated={isSelected} className="hidden sm:block" />
                 </span>
-                <span className={`text-xs md:text-sm ${isSelected ? 'text-[#2D3A3A] font-medium' : 'text-[#8A9999]'}`}>
+                <span className={`text-xs sm:text-sm block ${isSelected ? 'text-[#2D3A3A] font-medium' : 'text-[#8A9999]'}`}>
                   {mood.label}
                 </span>
               </motion.button>

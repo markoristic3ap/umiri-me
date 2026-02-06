@@ -78,7 +78,10 @@ export default function Profile({ user }) {
               </div>
             )}
             <div>
-              <h1 className="font-heading text-2xl font-bold text-[#2D3A3A]">{user?.name}</h1>
+              <h1 className="font-heading text-2xl font-bold text-[#2D3A3A] flex items-center gap-2">
+                {user?.name}
+                {user?.is_premium && <Crown className="w-5 h-5 text-[#E09F7D]" />}
+              </h1>
               <p className="text-sm text-[#8A9999]">{user?.email}</p>
             </div>
           </div>

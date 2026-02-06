@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Share2 } from "lucide-react";
+import { Leaf, LayoutDashboard, Smile, Calendar, BarChart3, User, LogOut, Image } from "lucide-react";
 import { API } from "@/lib/api";
 
 const navItems = [
@@ -7,7 +7,7 @@ const navItems = [
   { to: "/mood", icon: Smile, label: "Novo Raspoloženje" },
   { to: "/calendar", icon: Calendar, label: "Kalendar" },
   { to: "/statistics", icon: BarChart3, label: "Statistika" },
-  { to: "/share", icon: Share2, label: "Podeli" },
+  { to: "/share", icon: Image, label: "Podeli" },
   { to: "/profile", icon: User, label: "Profil" },
 ];
 

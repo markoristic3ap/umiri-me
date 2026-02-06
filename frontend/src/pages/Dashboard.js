@@ -267,7 +267,7 @@ export default function Dashboard({ user }) {
                   className="card-soft p-4 min-w-[120px] text-center shrink-0"
                   data-testid={`recent-mood-${mood.mood_id}`}
                 >
-                  <div className="text-3xl mb-2">{mood.emoji}</div>
+                  <div className="flex justify-center mb-2"><MoodIcon mood={mood.mood_type} size={36} /></div>
                   <p className="text-xs text-[#2D3A3A] font-medium">{mood.label}</p>
                   <p className="text-[10px] text-[#8A9999] mt-1">
                     {new Date(mood.date).toLocaleDateString('sr-Latn-RS', { day: 'numeric', month: 'short' })}

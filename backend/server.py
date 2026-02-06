@@ -437,12 +437,10 @@ Odgovaraš u 2-3 kratke rečenice. Možeš dodati i jedan emoji."""
 @api_router.get("/subscription/status")
 async def get_subscription_status(request: Request):
     user = await get_current_user(request)
-    premium = await is_premium(user["user_id"])
-    sub = await db.subscriptions.find_one({"user_id": user["user_id"], "status": "active"}, {"_id": 0})
+    sub_info = await get_subscription_info(user["user_id"])
     
     return {
-        "is_premium": premium,
-        "subscription": sub,
+        **sub_info,
         "plans": PREMIUM_PLANS
     }
 

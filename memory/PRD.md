@@ -51,18 +51,31 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
 - [x] **NOVO: Nedeljni AI Izveštaj** - AI analiza nedeljnih obrazaca sa preporukama (Premium)
 - [x] **NOVO: Dark Mode** - Toggle u sidebar-u sa persistence u localStorage
 
-## Prioritized Backlog
-### P0 (Next)
-- Push notifications / reminders for daily mood entry
-- Premium subscription model (Stripe)
+## Implemented Dec 2025
+- [x] **Admin Panel** - Stranica za upravljanje korisnicima (/admin)
+  - Pristup samo za admin korisnike (definisani u ADMIN_EMAILS)
+  - Statistike: ukupno korisnika, premium, trial, dnevno aktivnih
+  - Tabela korisnika sa pretragom i paginacijom
+  - "Dodeli Premium" modal sa opcijama trajanja (7, 30, 90, 365 dana)
+  - "Ukini Premium" dugme za revokaciju
+  - Admin link u sidebar-u vidljiv samo za admine
 
-### P1
-- Mood tagging (events, activities that caused mood)
-- Weekly/monthly email reports
-- Dark mode option
+## Prioritized Backlog
+### P0 (Completed)
+- ~~Admin Panel za upravljanje premium pristupom~~ ✓
+
+### P1 (Next)
+- Mood Challenge / Gamification Expansion - izazov prijateljima, leaderboard
+- Email notifikacije - podsetnik za mood unos, upozorenje pre isteka trial-a
+- Push notifications / reminders for daily mood entry
 
 ### P2
+- PWA konverzija - instalacija na home screen, offline pristup
+- Animated video cards za TikTok/Reels deljenje
 - Community features (anonymous mood sharing)
 - Mood comparison with national averages
 - Integration with health apps
 - Cyrillic script option
+
+### P3 (Future)
+- Affiliate integracija sa terapeutima u Srbiji

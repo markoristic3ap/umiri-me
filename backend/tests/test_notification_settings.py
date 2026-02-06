@@ -18,6 +18,9 @@ ADMIN_SESSION = "test_admin_notif_session_1770387191029"
 ADMIN_USER_ID = "test-admin-notif-1770387191029"
 REGULAR_SESSION = "test_regular_notif_session_1770387191047"
 REGULAR_USER_ID = "test-regular-notif-1770387191047"
+# Fresh user for default settings test (no prior settings saved)
+FRESH_SESSION = "test_fresh_notif_session_1770387276570"
+FRESH_USER_ID = "test-fresh-notif-1770387276570"
 
 
 class TestNotificationSettingsAPI:
@@ -25,9 +28,10 @@ class TestNotificationSettingsAPI:
     
     def test_get_notification_settings_default(self):
         """GET /api/settings/notifications - returns default settings for new users"""
+        # Use fresh user who has no prior settings saved
         response = requests.get(
             f"{BASE_URL}/api/settings/notifications",
-            headers={"Authorization": f"Bearer {REGULAR_SESSION}"}
+            headers={"Authorization": f"Bearer {FRESH_SESSION}"}
         )
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
         
@@ -37,7 +41,7 @@ class TestNotificationSettingsAPI:
         assert "reminder_time" in data, "Missing reminder_time field"
         assert "trial_warnings" in data, "Missing trial_warnings field"
         
-        # Verify default values
+        # Verify default values for a new user
         assert data["email_reminders"] == True, "Default email_reminders should be True"
         assert data["reminder_time"] == "20:00", f"Default reminder_time should be 20:00, got {data['reminder_time']}"
         assert data["trial_warnings"] == True, "Default trial_warnings should be True"

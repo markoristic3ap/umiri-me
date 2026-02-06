@@ -54,10 +54,10 @@ export default function MoodEntry({ user }) {
     <AppLayout user={user}>
       <div data-testid="mood-entry-page" className="max-w-2xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="font-heading text-3xl md:text-4xl font-light text-[#2D3A3A] mb-2">
+          <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-light text-[#2D3A3A] mb-2">
             Kako se <span className="font-bold text-[#4A6C6F]">osećaš</span>?
           </h1>
-          <p className="text-[#5C6B6B] mb-10">Izaberi raspoloženje koje najbolje opisuje tvoj trenutni osećaj</p>
+          <p className="text-sm sm:text-base text-[#5C6B6B] mb-6 sm:mb-10">Izaberi raspoloženje koje najbolje opisuje tvoj trenutni osećaj</p>
         </motion.div>
 
         {/* Emoji Grid */}

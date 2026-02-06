@@ -207,7 +207,7 @@ export default function Dashboard({ user }) {
                 onClick={() => navigate('/share')}
                 className="flex items-center gap-2 text-sm text-[#4A6C6F] hover:text-[#365052] transition-colors font-medium"
               >
-                <Share2 className="w-4 h-4" strokeWidth={1.5} />
+                <Image className="w-4 h-4" strokeWidth={1.5} />
                 Podeli Karticu
               </button>
             </div>

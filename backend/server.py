@@ -629,6 +629,10 @@ async def stripe_webhook(request: Request):
 async def get_mood_types():
     return MOOD_TYPES
 
+@api_router.get("/trigger-types")
+async def get_trigger_types():
+    return TRIGGER_TYPES
+
 @api_router.get("/premium/plans")
 async def get_premium_plans():
     return PREMIUM_PLANS

@@ -7,11 +7,13 @@ class MoodTrackerAPITester:
     def __init__(self, base_url="https://mood-tracker-321.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
-        self.session_token = None
-        self.test_user_id = None
+        # Use existing test session as per review request
+        self.session_token = "test_share_session_token"
+        self.test_user_id = "test-share-user"
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
+        self.checkout_session_id = None
 
     def log_test(self, name, success, details=""):
         """Log test result"""

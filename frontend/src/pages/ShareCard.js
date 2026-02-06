@@ -227,7 +227,7 @@ export default function ShareCard({ user }) {
                               key={mood.mood_id}
                               className="flex items-center gap-3 bg-white/50 backdrop-blur-sm rounded-2xl px-4 py-3"
                             >
-                              <span className="text-2xl">{mood.emoji}</span>
+                              <MoodIcon mood={mood.mood_type} size={28} />
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-[#2D3A3A]">{mood.label}</p>
                                 <p className="text-xs text-[#8A9999]">{formatDate(mood.date)}</p>

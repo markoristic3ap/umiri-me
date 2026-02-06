@@ -177,6 +177,102 @@ export default function Profile({ user }) {
           </div>
         </motion.div>
 
+        {/* Notification Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <h2 className="font-heading text-xl font-medium text-[#2D3A3A] dark:text-[#E8EAE8] mb-4 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-[#4A6C6F]" strokeWidth={1.5} /> Obaveštenja
+          </h2>
+          <div className="card-soft p-6 space-y-5">
+            {/* Email reminders toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-[#8A9999]" strokeWidth={1.5} />
+                <div>
+                  <p className="text-sm font-medium text-[#2D3A3A] dark:text-[#E8EAE8]">Dnevni podsetnik</p>
+                  <p className="text-xs text-[#8A9999]">Primi email ako nisi zabeležio/la raspoloženje</p>
+                </div>
+              </div>
+              <button
+                data-testid="toggle-email-reminders"
+                onClick={() => saveNotificationSettings({
+                  ...notifSettings,
+                  email_reminders: !notifSettings.email_reminders
+                })}
+                disabled={savingNotif}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  notifSettings.email_reminders ? "bg-[#4A6C6F]" : "bg-[#D6E0D6] dark:bg-[#2a3538]"
+                }`}
+              >
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                  notifSettings.email_reminders ? "translate-x-6" : "translate-x-0.5"
+                }`} />
+              </button>
+            </div>
+
+            {/* Reminder time */}
+            {notifSettings.email_reminders && (
+              <div className="flex items-center justify-between pl-8 border-l-2 border-[#D6E0D6] dark:border-[#2a3538] ml-2">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-[#8A9999]" strokeWidth={1.5} />
+                  <div>
+                    <p className="text-sm font-medium text-[#2D3A3A] dark:text-[#E8EAE8]">Vreme podsetnika</p>
+                    <p className="text-xs text-[#8A9999]">Kada da ti pošaljemo podsetnik</p>
+                  </div>
+                </div>
+                <select
+                  data-testid="reminder-time-select"
+                  value={notifSettings.reminder_time}
+                  onChange={(e) => saveNotificationSettings({
+                    ...notifSettings,
+                    reminder_time: e.target.value
+                  })}
+                  disabled={savingNotif}
+                  className="bg-[#F2F4F0] dark:bg-[#243030] border-none rounded-xl px-3 py-2 text-sm text-[#2D3A3A] dark:text-[#E8EAE8] focus:ring-2 focus:ring-[#4A6C6F]/30"
+                >
+                  <option value="08:00">08:00</option>
+                  <option value="09:00">09:00</option>
+                  <option value="12:00">12:00</option>
+                  <option value="18:00">18:00</option>
+                  <option value="19:00">19:00</option>
+                  <option value="20:00">20:00</option>
+                  <option value="21:00">21:00</option>
+                  <option value="22:00">22:00</option>
+                </select>
+              </div>
+            )}
+
+            {/* Trial warnings toggle */}
+            <div className="flex items-center justify-between pt-4 border-t border-[#EBEBE8] dark:border-[#2a3538]">
+              <div className="flex items-center gap-3">
+                <Crown className="w-5 h-5 text-[#E09F7D]" strokeWidth={1.5} />
+                <div>
+                  <p className="text-sm font-medium text-[#2D3A3A] dark:text-[#E8EAE8]">Trial obaveštenja</p>
+                  <p className="text-xs text-[#8A9999]">Obavesti me pre isteka trial perioda</p>
+                </div>
+              </div>
+              <button
+                data-testid="toggle-trial-warnings"
+                onClick={() => saveNotificationSettings({
+                  ...notifSettings,
+                  trial_warnings: !notifSettings.trial_warnings
+                })}
+                disabled={savingNotif}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  notifSettings.trial_warnings ? "bg-[#4A6C6F]" : "bg-[#D6E0D6] dark:bg-[#2a3538]"
+                }`}
+              >
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                  notifSettings.trial_warnings ? "translate-x-6" : "translate-x-0.5"
+                }`} />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

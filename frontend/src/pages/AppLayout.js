@@ -17,10 +17,10 @@ const mobileNavItems = [
   { to: "/mood", icon: Smile, label: "Novo" },
   { to: "/calendar", icon: Calendar, label: "Kalendar" },
   { to: "/share", icon: Image, label: "Podeli" },
-
-export default function AppLayout({ children, user }) {
   { to: "/profile", icon: User, label: "Profil" },
 ];
+
+export default function AppLayout({ children, user }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {

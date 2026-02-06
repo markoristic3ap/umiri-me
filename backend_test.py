@@ -234,6 +234,134 @@ class MoodTrackerAPITester:
             return True
         return False
 
+    # NEW PREMIUM FEATURE TESTS
+    def test_premium_plans(self):
+        """Test GET /api/premium/plans returns monthly and yearly plans with RSD pricing"""
+        success, response = self.run_test("Premium Plans", "GET", "premium/plans", 200)
+        if success and isinstance(response, dict):
+            if "monthly" in response and "yearly" in response:
+                monthly = response.get("monthly", {})
+                yearly = response.get("yearly", {})
+                
+                # Verify monthly plan
+                if monthly.get("amount") == 500.0 and monthly.get("currency") == "rsd":
+                    print(f"   Monthly plan: {monthly.get('amount')} {monthly.get('currency').upper()}")
+                else:
+                    self.log_test("Premium Plans - Monthly", False, f"Expected 500 RSD, got {monthly}")
+                    return False
+                
+                # Verify yearly plan
+                if yearly.get("amount") == 4200.0 and yearly.get("currency") == "rsd":
+                    print(f"   Yearly plan: {yearly.get('amount')} {yearly.get('currency').upper()}")
+                    return True
+                else:
+                    self.log_test("Premium Plans - Yearly", False, f"Expected 4200 RSD, got {yearly}")
+                    return False
+            else:
+                self.log_test("Premium Plans", False, "Missing monthly or yearly plans")
+                return False
+        return False
+
+    def test_subscription_status(self):
+        """Test GET /api/subscription/status returns is_premium status"""
+        if not self.session_token:
+            self.log_test("Subscription Status", False, "No session token available")
+            return False
+        
+        success, response = self.run_test("Subscription Status", "GET", "subscription/status", 200)
+        if success and "is_premium" in response:
+            is_premium = response.get("is_premium")
+            plans = response.get("plans", {})
+            print(f"   User is_premium: {is_premium}")
+            print(f"   Available plans: {list(plans.keys()) if plans else 'None'}")
+            return True
+        return False
+
+    def test_subscription_checkout(self):
+        """Test POST /api/subscription/checkout creates Stripe checkout session"""
+        if not self.session_token:
+            self.log_test("Subscription Checkout", False, "No session token available")
+            return False
+        
+        checkout_data = {
+            "plan_id": "monthly",
+            "origin_url": "https://mood-tracker-321.preview.emergentagent.com"
+        }
+        success, response = self.run_test("Subscription Checkout", "POST", "subscription/checkout", 200, checkout_data)
+        if success and "url" in response and "session_id" in response:
+            self.checkout_session_id = response.get("session_id")
+            print(f"   Checkout URL created: {response.get('url')[:50]}...")
+            print(f"   Session ID: {self.checkout_session_id}")
+            return True
+        return False
+
+    def test_checkout_status(self):
+        """Test GET /api/subscription/checkout/status/{session_id} polls payment status"""
+        if not self.session_token or not self.checkout_session_id:
+            self.log_test("Checkout Status", False, "No session token or checkout session ID available")
+            return False
+        
+        success, response = self.run_test(
+            "Checkout Status", 
+            "GET", 
+            f"subscription/checkout/status/{self.checkout_session_id}", 
+            200
+        )
+        if success and "status" in response and "payment_status" in response:
+            status = response.get("status")
+            payment_status = response.get("payment_status")
+            print(f"   Checkout status: {status}, Payment status: {payment_status}")
+            return True
+        return False
+
+    def test_moods_export_non_premium(self):
+        """Test GET /api/moods/export returns 403 for non-premium users"""
+        if not self.session_token:
+            self.log_test("Moods Export Non-Premium", False, "No session token available")
+            return False
+        
+        # This should return 403 for non-premium users
+        success, response = self.run_test("Moods Export Non-Premium", "GET", "moods/export", 403)
+        if success:
+            print("   Export correctly blocked for non-premium user")
+            return True
+        return False
+
+    def test_ai_tips_limit(self):
+        """Test POST /api/ai/tips returns 403 after free tier limit exceeded"""
+        if not self.session_token:
+            self.log_test("AI Tips Limit", False, "No session token available")
+            return False
+        
+        # First AI tip should work
+        success1, response1 = self.run_test("AI Tips First", "POST", "ai/tips", 200)
+        
+        # Second AI tip should return 403 (limit exceeded)
+        success2, response2 = self.run_test("AI Tips Limit Exceeded", "POST", "ai/tips", 403)
+        
+        if success1 and success2:
+            print("   AI tips free tier limit working correctly")
+            return True
+        elif success1:
+            print("   First AI tip worked, but limit not enforced on second request")
+            return False
+        return False
+
+    def test_auth_me_premium_field(self):
+        """Test GET /api/auth/me now includes is_premium field"""
+        if not self.session_token:
+            self.log_test("Auth Me Premium Field", False, "No session token available")
+            return False
+        
+        success, response = self.run_test("Auth Me Premium Field", "GET", "auth/me", 200)
+        if success and "is_premium" in response:
+            is_premium = response.get("is_premium")
+            print(f"   Auth/me includes is_premium field: {is_premium}")
+            return True
+        else:
+            self.log_test("Auth Me Premium Field", False, "is_premium field missing from /auth/me response")
+            return False
+
     def run_all_tests(self):
         """Run all backend API tests"""
         print("🧪 Starting Umiri.me Backend API Testing")

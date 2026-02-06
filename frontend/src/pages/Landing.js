@@ -98,13 +98,13 @@ export default function Landing() {
               transition={{ duration: 1, delay: 1 }}
               className="mt-16 flex items-center gap-6"
             >
-              {["😊", "😌", "🤩", "😐", "😢", "😰", "😡", "🥱"].map((emoji, i) => (
+              {["srecan", "miran", "odusevljen", "neutralan", "tuzan", "anksiozan", "ljut", "umoran"].map((mood, i) => (
                 <span
-                  key={emoji}
-                  className="text-2xl sm:text-3xl opacity-50 hover:opacity-100 transition-all duration-300 hover:scale-125 cursor-default"
+                  key={mood}
+                  className="opacity-50 hover:opacity-100 transition-all duration-300 hover:scale-125 cursor-default"
                   style={{ animationDelay: `${i * 0.2}s` }}
                 >
-                  {emoji}
+                  <MoodIcon mood={mood} size={36} />
                 </span>
               ))}
             </motion.div>

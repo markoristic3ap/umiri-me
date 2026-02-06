@@ -96,7 +96,7 @@ export default function MoodEntry({ user }) {
             >
               <div className="card-soft p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-3xl">{MOOD_TYPES[selectedMood].emoji}</span>
+                  <MoodIcon mood={selectedMood} size={40} />
                   <div>
                     <p className="font-heading font-medium text-[#2D3A3A]">
                       Osećaš se: {MOOD_TYPES[selectedMood].label}

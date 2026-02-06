@@ -423,8 +423,10 @@ class MoodTrackerAPITester:
         # Test auth-protected endpoints using existing session
         print(f"\n🔐 Testing Auth-Protected Endpoints with session: {self.session_token[:20]}...")
         
-        # Core premium tests
-        print("\n💎 Testing Premium Subscription Features...")
+        # Core premium and trial tests
+        print("\n💎 Testing Premium & Trial Features...")
+        self.test_trial_user_verification()
+        self.test_trial_status_consistency()
         self.test_auth_me_premium_field()
         self.test_subscription_status()
         self.test_subscription_checkout()

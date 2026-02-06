@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Smile, Flame, TrendingUp, Sparkles, ChevronRight, Loader2, Share2 } from "lucide-react";
+import { Smile, Flame, TrendingUp, Sparkles, ChevronRight, Loader2, Image } from "lucide-react";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 

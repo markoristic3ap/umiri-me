@@ -186,6 +186,8 @@ async def create_session(request: Request, response: Response):
             "picture": user_data.get("picture", ""),
             "created_at": datetime.now(timezone.utc).isoformat()
         })
+        # Auto-activate 7-day trial for new users
+        await activate_trial(user_id)
     
     session_token = f"session_{uuid.uuid4().hex}"
     await db.user_sessions.insert_one({

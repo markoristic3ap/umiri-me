@@ -40,7 +40,13 @@ export default function Dashboard({ user }) {
     setLoadingTip(true);
     try {
       const res = await fetchWithAuth(`${API}/ai/tips`, { method: 'POST' });
-      if (res.ok) setAiTip(await res.json());
+      if (res.status === 403) {
+        const err = await res.json();
+        setAiTip({ tip: null, limit_reached: true, message: err.detail });
+      } else if (res.ok) {
+        const data = await res.json();
+        setAiTip({ tip: data.tip, limit_reached: false });
+      }
     } catch (err) {
       console.error(err);
     } finally {

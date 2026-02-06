@@ -104,7 +104,7 @@ export default function Landing() {
                   className="opacity-50 hover:opacity-100 transition-all duration-300 hover:scale-125 cursor-default"
                   style={{ animationDelay: `${i * 0.2}s` }}
                 >
-                  <MoodIcon mood={mood} size={36} />
+                  <MoodIcon mood={mood} size={36} animated />
                 </span>
               ))}
             </motion.div>

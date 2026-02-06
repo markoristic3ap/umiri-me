@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Download, Send, Award, Flame, Loader2, Crown } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "./AppLayout";

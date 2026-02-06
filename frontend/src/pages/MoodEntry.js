@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import MoodIcon from "@/components/MoodIcon";
 import AppLayout from "./AppLayout";
 import { API, fetchWithAuth, MOOD_TYPES } from "@/lib/api";
 

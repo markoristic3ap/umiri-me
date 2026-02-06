@@ -85,6 +85,14 @@ export default function AppLayout({ children, user }) {
             <LogOut className="w-4 h-4" strokeWidth={1.5} />
             Odjavi se
           </button>
+          <button
+            data-testid="theme-toggle-btn"
+            onClick={toggleTheme}
+            className="flex items-center gap-2 text-sm text-[#8A9999] hover:text-[#4A6C6F] transition-colors mt-2"
+          >
+            {isDark ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
+            {isDark ? "Svetla tema" : "Tamna tema"}
+          </button>
         </div>
       </aside>
 

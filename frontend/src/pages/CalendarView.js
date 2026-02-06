@@ -173,7 +173,7 @@ export default function CalendarView({ user }) {
         <div className="mt-6 flex flex-wrap gap-3">
           {Object.entries(MOOD_TYPES).map(([key, mood]) => (
             <div key={key} className="flex items-center gap-1.5 text-xs text-[#8A9999]">
-              <span className="text-base">{mood.emoji}</span>
+              <MoodIcon mood={key} size={20} />
               {mood.label}
             </div>
           ))}

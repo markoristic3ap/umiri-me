@@ -44,9 +44,16 @@
   transition: all 0.3s;
   box-shadow: 0 4px 14px rgba(74, 108, 111, 0.2);
 }
+.dark .btn-primary-soft {
+  background: hsl(175 25% 50%);
+  box-shadow: 0 4px 14px rgba(74, 168, 161, 0.2);
+}
 .btn-primary-soft:hover {
   background: #365052;
   transform: scale(1.05);
+}
+.dark .btn-primary-soft:hover {
+  background: hsl(175 25% 42%);
 }
 .btn-primary-soft:active {
   transform: scale(0.95);

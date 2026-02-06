@@ -231,7 +231,7 @@ class MoodTrackerAPITester:
         return False
 
     def test_mood_stats(self):
-        """Test GET /api/moods/stats returns statistics"""
+        """Test GET /api/moods/stats returns statistics with trigger_insights"""
         if not self.session_token:
             self.log_test("Mood Stats", False, "No session token available")
             return False
@@ -239,7 +239,25 @@ class MoodTrackerAPITester:
         success, response = self.run_test("Mood Stats", "GET", "moods/stats", 200)
         if success and "total" in response:
             print(f"   Stats - Total: {response.get('total')}, Streak: {response.get('streak')}")
-            return True
+            # Check for trigger_insights array
+            trigger_insights = response.get("trigger_insights", [])
+            if isinstance(trigger_insights, list):
+                print(f"   Trigger insights: {len(trigger_insights)} insights available")
+                # If there are insights, validate structure
+                if trigger_insights:
+                    insight = trigger_insights[0]
+                    required_fields = ["trigger", "label", "avg_score", "count"]
+                    has_all_fields = all(field in insight for field in required_fields)
+                    if has_all_fields:
+                        print(f"   First insight: {insight.get('label')} - avg {insight.get('avg_score')}/5 ({insight.get('count')}x)")
+                        return True
+                    else:
+                        self.log_test("Mood Stats Trigger Insights", False, f"Missing fields in trigger insight: {insight}")
+                else:
+                    print(f"   No trigger insights yet (no moods with triggers)")
+                    return True
+            else:
+                self.log_test("Mood Stats", False, "trigger_insights not found or not an array")
         return False
 
     def test_export_moods(self):

@@ -46,6 +46,10 @@ Build a mood tracker app (umiri.me) for the Serbian market. Users record daily m
 - [x] **NOVO: README.md** - Kompletna dokumentacija sa svim varijablama, ključevima, API endpoint-ima i uputstvima za deployment
 - [x] **NOVO: Mood Triggers** - 12 faktora (Posao, San, Vežbanje, Društvo, Ishrana, Porodica, Zdravlje, Vreme, Novac, Učenje, Odmor, Kreativnost), analiza u statistici, AI saveti sa kontekstom
 - [x] **NOVO: Animirane SVG Ikonice** - Svako raspoloženje ima jedinstvenu animaciju (bounce, breathe, shake) kroz framer-motion
+- [x] **NOVO: Tehnika Disanja** - 60-sekundno vođeno disanje (4-4-6 pattern) koje se automatski predlaže kod negativnih raspoloženja
+- [x] **NOVO: Dnevnik Zahvalnosti** - "Za šta si danas zahvalan/na?" polje uz mood entry
+- [x] **NOVO: Nedeljni AI Izveštaj** - AI analiza nedeljnih obrazaca sa preporukama (Premium)
+- [x] **NOVO: Dark Mode** - Toggle u sidebar-u sa persistence u localStorage
 
 ## Prioritized Backlog
 ### P0 (Next)

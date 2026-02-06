@@ -80,6 +80,12 @@ function AppRouter() {
       <Route path="/share" element={
         <ProtectedRoute>{({ user }) => <ShareCard user={user} />}</ProtectedRoute>
       } />
+      <Route path="/premium" element={
+        <ProtectedRoute>{({ user }) => <PremiumPage user={user} />}</ProtectedRoute>
+      } />
+      <Route path="/premium/success" element={
+        <ProtectedRoute>{() => <PaymentSuccess />}</ProtectedRoute>
+      } />
     </Routes>
   );
 }

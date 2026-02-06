@@ -24,6 +24,7 @@ const mobileNavItems = [
 
 export default function AppLayout({ children, user }) {
   const navigate = useNavigate();
+  const { isDark, toggle: toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     await fetch(`${API}/auth/logout`, { method: 'POST', credentials: 'include' });

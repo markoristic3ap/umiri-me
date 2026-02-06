@@ -364,29 +364,35 @@ class MoodTrackerAPITester:
 
     def run_all_tests(self):
         """Run all backend API tests"""
-        print("🧪 Starting Umiri.me Backend API Testing")
-        print("=" * 50)
+        print("🧪 Starting Umiri.me Backend API Testing - Premium Features Focus")
+        print("=" * 60)
         
         # Test public endpoints first
         print("\n📡 Testing Public Endpoints...")
         self.test_root_endpoint()
         self.test_mood_types()
+        self.test_premium_plans()
         
-        # Create test session for auth-protected endpoints
-        if not self.create_test_session():
-            print("❌ Cannot proceed with auth tests - session creation failed")
-            self.print_summary()
-            return 1
+        # Test auth-protected endpoints using existing session
+        print(f"\n🔐 Testing Auth-Protected Endpoints with session: {self.session_token[:20]}...")
         
-        print("\n🔐 Testing Auth-Protected Endpoints...")
+        # Core premium tests
+        print("\n💎 Testing Premium Subscription Features...")
+        self.test_auth_me_premium_field()
+        self.test_subscription_status()
+        self.test_subscription_checkout()
+        self.test_checkout_status()
+        self.test_moods_export_non_premium()
+        self.test_ai_tips_limit()
+        
+        # Standard functionality tests
+        print("\n📊 Testing Core Mood Tracking Features...")
         self.test_auth_me()
         self.test_create_mood()
         self.test_get_moods()
         self.test_calendar_data()
         self.test_mood_stats()
-        self.test_export_moods()
         self.test_gamification_stats()
-        self.test_ai_tips()
         
         self.print_summary()
         return 0 if self.tests_passed == self.tests_run else 1

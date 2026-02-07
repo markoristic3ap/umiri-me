@@ -237,14 +237,14 @@ async def google_auth(request: Request, response: Response):
     await db.user_sessions.insert_one({
         "user_id": user_id,
         "session_token": session_token,
-        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
 
     response.set_cookie(
         key="session_token", value=session_token,
-        httponly=True, secure=True, samesite="none", path="/",
-        max_age=7 * 24 * 60 * 60
+        httponly=True, secure=True, samesite="lax", path="/",
+        max_age=30 * 24 * 60 * 60
     )
 
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
@@ -261,7 +261,7 @@ async def logout(request: Request, response: Response):
     session_token = request.cookies.get("session_token")
     if session_token:
         await db.user_sessions.delete_many({"session_token": session_token})
-    response.delete_cookie(key="session_token", path="/", secure=True, samesite="none")
+    response.delete_cookie(key="session_token", path="/", secure=True, samesite="lax")
     return {"message": "Uspešno ste se odjavili"}
 
 # Mood endpoints

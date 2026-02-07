@@ -273,6 +273,12 @@ async def send_magic_link(request: Request):
     if not email:
         raise HTTPException(status_code=400, detail="Email je obavezan")
 
+    # Ocisti istekle i iskoriscene linkove
+    await db.magic_links.delete_many({"$or": [
+        {"expires_at": {"$lt": datetime.now(timezone.utc).isoformat()}},
+        {"used": True}
+    ]})
+
     token = uuid.uuid4().hex
     await db.magic_links.insert_one({
         "email": email,

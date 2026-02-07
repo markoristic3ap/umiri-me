@@ -270,7 +270,7 @@ export default function Landing() {
             viewport={{ once: true }}
             className="font-heading text-3xl md:text-4xl font-light text-white mb-4"
           >
-            Spreman da se <span className="font-bold">umiriš</span>?
+            Upoznaj sebe <span className="font-bold">bolje</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -278,7 +278,7 @@ export default function Landing() {
             viewport={{ once: true }}
             className="text-white/70 mb-8"
           >
-            Započni besplatno praćenje raspoloženja danas.
+            Prati raspoloženja i otkrij šta te čini srećnim.
           </motion.p>
           <motion.button
             initial={{ opacity: 0, y: 20 }}
@@ -287,7 +287,7 @@ export default function Landing() {
             onClick={handleGoogleLogin}
             className="px-8 py-4 bg-white text-[#4A6C6F] rounded-2xl font-medium hover:bg-[#F9F9F7] transition-colors"
           >
-            Započni besplatno
+            Kreni besplatno
           </motion.button>
         </div>
       </section>

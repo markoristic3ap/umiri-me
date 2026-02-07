@@ -26,6 +26,7 @@ STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 ADMIN_EMAILS = [e.strip() for e in os.environ.get('ADMIN_EMAILS', '').split(',') if e.strip()]
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -263,6 +264,169 @@ async def logout(request: Request, response: Response):
         await db.user_sessions.delete_many({"session_token": session_token})
     response.delete_cookie(key="session_token", path="/", secure=True, samesite="lax")
     return {"message": "Uspešno ste se odjavili"}
+
+# Magic link auth
+@api_router.post("/auth/magic-link")
+async def send_magic_link(request: Request):
+    body = await request.json()
+    email = body.get("email", "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email je obavezan")
+
+    token = uuid.uuid4().hex
+    await db.magic_links.insert_one({
+        "email": email,
+        "token": token,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat(),
+        "used": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
+    origin = request.headers.get("origin", "https://umiri.me")
+    magic_url = f"{origin}/auth/magic?token={token}"
+
+    if RESEND_API_KEY:
+        try:
+            async with httpx.AsyncClient() as client_http:
+                resp = await client_http.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+                    json={
+                        "from": "Umiri.me <noreply@umiri.me>",
+                        "to": [email],
+                        "subject": "Tvoj link za prijavu na Umiri.me",
+                        "html": f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #F4F4F1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F4F4F1; padding: 40px 20px;">
+    <tr><td align="center">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width: 480px; width: 100%;">
+
+        <!-- Logo -->
+        <tr><td align="center" style="padding-bottom: 32px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td style="width: 40px; height: 40px; background-color: #4A6C6F; border-radius: 50%; text-align: center; vertical-align: middle; font-size: 18px;">
+              &#127807;
+            </td>
+            <td style="padding-left: 10px; font-size: 18px; color: #2D3A3A; font-weight: 300; letter-spacing: 0.5px;">umiri.me</td>
+          </tr></table>
+        </td></tr>
+
+        <!-- Card -->
+        <tr><td>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 20px; overflow: hidden;">
+
+            <!-- Green accent bar -->
+            <tr><td style="height: 4px; background-color: #4A6C6F;"></td></tr>
+
+            <!-- Content -->
+            <tr><td style="padding: 44px 40px 48px;">
+
+              <h1 style="margin: 0 0 12px; font-size: 24px; font-weight: 300; color: #2D3A3A; line-height: 1.3;">
+                Prijavi se na Umiri.me
+              </h1>
+              <p style="margin: 0 0 32px; font-size: 15px; color: #5C6B6B; line-height: 1.7;">
+                Klikni na dugme ispod da se prijaviš. Link važi 15 minuta.
+              </p>
+
+              <!-- Button -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr><td align="center" style="background-color: #4A6C6F; border-radius: 50px;">
+                  <a href="{magic_url}" target="_blank" style="display: inline-block; padding: 16px 48px; color: #ffffff; font-size: 15px; font-weight: 500; text-decoration: none; letter-spacing: 0.3px;">
+                    Prijavi se
+                  </a>
+                </td></tr>
+              </table>
+
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td align="center" style="padding-top: 28px;">
+          <p style="margin: 0; font-size: 12px; color: #8A9999;">
+            Umiri.me — Tvoja oaza unutrašnjeg mira
+          </p>
+          <p style="margin: 6px 0 0; font-size: 11px; color: #B0BABA;">
+            Powered by <a href="https://creativewin.net" style="color: #4A6C6F; text-decoration: none;">Creativewin</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>""",
+                    },
+                )
+                if resp.status_code != 200:
+                    logger.error(f"Resend API error: {resp.status_code} {resp.text}")
+                    raise HTTPException(status_code=500, detail="Greška pri slanju emaila")
+                logger.info(f"Magic link email sent to {email}")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to send magic link email: {e}")
+            raise HTTPException(status_code=500, detail="Greška pri slanju emaila")
+    else:
+        logger.info(f"Magic link for {email}: {magic_url}")
+
+    return {"message": "Link je poslat na email"}
+
+@api_router.post("/auth/magic-link/verify")
+async def verify_magic_link(request: Request, response: Response):
+    body = await request.json()
+    token = body.get("token", "")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token je obavezan")
+
+    link = await db.magic_links.find_one({"token": token, "used": False})
+    if not link:
+        raise HTTPException(status_code=401, detail="Nevažeći ili istekao link")
+
+    expires_at = link["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=401, detail="Link je istekao")
+
+    await db.magic_links.update_one({"token": token}, {"$set": {"used": True}})
+
+    email = link["email"]
+    user_id = f"user_{uuid.uuid4().hex[:12]}"
+    existing = await db.users.find_one({"email": email}, {"_id": 0})
+    if existing:
+        user_id = existing["user_id"]
+    else:
+        name = email.split("@")[0]
+        await db.users.insert_one({
+            "user_id": user_id,
+            "email": email,
+            "name": name,
+            "picture": "",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        await activate_trial(user_id)
+
+    session_token = f"session_{uuid.uuid4().hex}"
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
+    response.set_cookie(
+        key="session_token", value=session_token,
+        httponly=True, secure=True, samesite="lax", path="/",
+        max_age=30 * 24 * 60 * 60
+    )
+
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    return user
 
 # Mood endpoints
 @api_router.post("/moods")

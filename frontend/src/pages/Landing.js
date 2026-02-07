@@ -103,7 +103,7 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1 }}
-              className="mt-16 flex items-center gap-6"
+              className="mt-16 flex flex-wrap justify-center sm:justify-start items-center gap-4 sm:gap-6 max-w-[200px] sm:max-w-none mx-auto sm:mx-0"
             >
               {["srecan", "miran", "odusevljen", "neutralan", "tuzan", "anksiozan", "ljut", "umoran"].map((mood, i) => (
                 <span

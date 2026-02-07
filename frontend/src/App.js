@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import Landing from "@/pages/Landing";
 import AuthCallback from "@/pages/AuthCallback";
+import MagicLinkCallback from "@/pages/MagicLinkCallback";
 import Dashboard from "@/pages/Dashboard";
 import MoodEntry from "@/pages/MoodEntry";
 import CalendarView from "@/pages/CalendarView";
@@ -59,6 +60,7 @@ function AppRouter() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/auth/magic" element={<MagicLinkCallback />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>{({ user }) => <Dashboard user={user} />}</ProtectedRoute>
       } />
